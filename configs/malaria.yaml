@@ -6,7 +6,7 @@
 # Update 'path' below if your directory layout differs.
 
 # Root directory of the YOLO-formatted dataset
-path: data/yolo_dataset
+path: /Users/mac/Malaria_Detection_System/data/raw/malaria
 
 # Relative to 'path' above
 train: images/train
@@ -19,8 +19,8 @@ test: images/test
 # matching the BBBC041 annotation categories.
 nc: 5
 names:
-  0: red_blood_cell
-  1: ring
-  2: trophozoite
-  3: schizont
-  4: gametocyte
+  0: ring
+  1: trophozoite
+  2: schizont
+  3: gametocyte
+  4: red_blood_cell

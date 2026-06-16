@@ -35,11 +35,11 @@ from typing import Dict, List, Optional, Tuple  # CHANGED
 # Class mapping — must match configs/malaria.yaml
 # ---------------------------------------------------------------------------
 CLASS_MAP: Dict[str, int] = {
-    "red blood cell": 0,
-    "ring": 1,
-    "trophozoite": 2,
-    "schizont": 3,
-    "gametocyte": 4,
+    "ring": 0,
+    "trophozoite": 1,
+    "schizont": 2,
+    "gametocyte": 3,
+    "red blood cell": 4,
 }
 
 # Some annotations use variant spellings; normalise them here.
