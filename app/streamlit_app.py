@@ -332,12 +332,12 @@ def main():
         st.sidebar.markdown("### 📊 Model Performance")
         metrics_col1, metrics_col2 = st.sidebar.columns(2)
         with metrics_col1:
-            st.metric("mAP@50", "—", help="Updated after training")
-            st.metric("Precision", "—", help="Updated after training")
+            st.metric("mAP@50", "98.9%", help="Baseline (5-epoch, ring-only). Updating after full 5-class training.")
+            st.metric("Precision", "96.1%", help="Baseline (5-epoch, ring-only). Updating after full 5-class training.")
         with metrics_col2:
-            st.metric("Recall", "—", help="Updated after training")
-            st.metric("F1 Score", "—", help="Updated after training")
-        st.sidebar.caption("Metrics populated after model training.")
+            st.metric("Recall", "97.8%", help="Baseline (5-epoch, ring-only). Updating after full 5-class training.")
+            st.metric("F1 Score", "96.9%", help="Calculated from baseline precision/recall.")
+        st.sidebar.caption("Baseline metrics (5-epoch validation run)")
 
         st.markdown("---")
         st.markdown("### 📊 About")
@@ -384,10 +384,10 @@ def main():
         sample_col1, sample_col2, sample_col3 = st.columns(3)
         with sample_col1:
             if st.button("🔬 Sample 1 — Infected"):
-                st.session_state["sample_image"] = "app/samples/infected_sample.jpg"
+                st.session_state["sample_image"] = "app/samples/infected_sample.png"
         with sample_col2:
             if st.button("🔬 Sample 2 — Mixed"):
-                st.session_state["sample_image"] = "app/samples/mixed_sample.jpg"
+                st.session_state["sample_image"] = "app/samples/mixed_sample.png"
         with sample_col3:
             if st.button("🔬 Sample 3 — Healthy"):
                 st.session_state["sample_image"] = "app/samples/healthy_sample.jpg"
@@ -511,6 +511,74 @@ def main():
                     st.image(annotated_rgb, use_container_width=True)
                 else:
                     st.info("No detections to display.")
+
+            # CHANGED: Clinical Summary Card (Single Image mode only)
+            st.markdown("---")
+            st.markdown("### 🩺 AI Screening Summary")
+            
+            # 1. Parasites detected count
+            # 2. Dominant stage determination
+            p_counts = {}
+            for d in result.detections:
+                if d.class_name in PARASITE_CLASSES:
+                    p_counts[d.class_name] = p_counts.get(d.class_name, 0) + 1
+            
+            dominant_stage = "None"
+            if p_counts:
+                dominant_stage = max(p_counts, key=p_counts.get).replace("_", " ").title()
+
+            # 3 & 4. Estimated parasitemia & Severity
+            severity_str = classify_severity(result.parasitemia_pct)
+
+            # 5. Recommendation
+            if uncertain_count > 0:
+                rec_str = f"Microscopy review strongly advised — {uncertain_count} detection(s) flagged for human verification."
+                rec_style = "background-color: #ffd214; color: #1a1a2e; border-left: 5px solid #d4af37;"
+                rec_icon = "⚠️"
+            elif result.parasitemia_pct == 0:
+                rec_str = "No parasites detected. Routine confirmation recommended per standard clinical protocol."
+                rec_style = "background-color: #1f3a2b; color: #64ffda; border-left: 5px solid #64ffda;"
+                rec_icon = "✅"
+            elif result.parasitemia_pct < 1:
+                rec_str = "Low parasitemia detected. Microscopy review advised before final diagnosis."
+                rec_style = "background-color: #3b3a1a; color: #ffeb3b; border-left: 5px solid #ffd214;"
+                rec_icon = "🟡"
+            elif result.parasitemia_pct < 5:
+                rec_str = "Moderate parasitemia detected. Microscopy review advised before final diagnosis."
+                rec_style = "background-color: #3a2510; color: #ff9800; border-left: 5px solid #ff9800;"
+                rec_icon = "🟠"
+            else:
+                rec_str = "Severe parasitemia detected. Immediate microscopy confirmation and clinical correlation advised."
+                rec_style = "background-color: #421818; color: #ff4d4d; border-left: 5px solid #ff4d4d;"
+                rec_icon = "🚨"
+
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); border: 1px solid #233554; border-radius: 12px; padding: 1.5rem; color: white;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 0.85rem; color: #8892b0;">Parasites Detected</div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #ff4d4d;">{result.total_parasites}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #8892b0;">Dominant Stage</div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #64ffda;">{dominant_stage}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #8892b0;">Estimated Parasitemia</div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #64ffda;">{result.parasitemia_pct:.2f}%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: #8892b0;">Severity</div>
+                        <div style="font-size: 1.2rem; font-weight: 700; margin-top: 0.5rem;">{severity_str}</div>
+                    </div>
+                </div>
+                <div style="{rec_style} padding: 1rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.8rem;">
+                    <span style="font-size: 1.5rem;">{rec_icon}</span>
+                    <span>{rec_str}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
 
             # --- CHANGED: Detection Crop Gallery (Single Image mode only) ---
             _render_detection_gallery(image_bgr, result)
