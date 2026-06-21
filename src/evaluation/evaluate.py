@@ -35,7 +35,7 @@ matplotlib.use("Agg")
 # ---------------------------------------------------------------------------
 # Class names (must match configs/malaria.yaml)
 # ---------------------------------------------------------------------------
-CLASS_NAMES = ["red_blood_cell", "ring", "trophozoite", "schizont", "gametocyte"]
+CLASS_NAMES = ["ring", "trophozoite", "schizont", "gametocyte", "red_blood_cell"]
 
 
 def run_validation(
