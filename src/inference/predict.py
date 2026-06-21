@@ -25,6 +25,7 @@ Usage:
 """
 
 import argparse
+import time  # CHANGED: Added for inference timing
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -78,6 +79,7 @@ class PredictionResult:
     total_rbc: int = 0
     total_parasites: int = 0
     parasitemia_pct: float = 0.0
+    inference_time_sec: float = 0.0  # CHANGED: Wall-clock time for model.predict() only
 
     def compute_parasitemia(self) -> None:
         """Estimate parasitemia percentage.
@@ -110,6 +112,7 @@ class PredictionResult:
             "total_rbc": self.total_rbc,
             "total_parasites": self.total_parasites,
             "parasitemia_pct": round(self.parasitemia_pct, 2),
+            "inference_time_sec": round(self.inference_time_sec, 4),  # CHANGED: Include timing in summary
             "per_class_counts": self._per_class_counts(),
         }
 
@@ -161,6 +164,7 @@ class MalariaDetector:
             PredictionResult with detections and (optionally) annotated image.
         """
         # Run YOLO inference
+        start_time = time.perf_counter()  # CHANGED: Start inference timer
         results = self.model.predict(
             source=image_source,
             conf=conf,
@@ -169,6 +173,7 @@ class MalariaDetector:
             device=self.device,
             verbose=False,
         )
+        inference_time_sec = time.perf_counter() - start_time  # CHANGED: End inference timer
 
         result = results[0]  # Single image → single result
 
@@ -204,6 +209,7 @@ class MalariaDetector:
             image_path=img_path,
             detections=detections,
             annotated_image=annotated_img,
+            inference_time_sec=inference_time_sec,  # CHANGED: Pass measured timing
         )
         pred_result.compute_parasitemia()
 

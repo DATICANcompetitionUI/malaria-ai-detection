@@ -297,11 +297,13 @@ def main():
     with st.sidebar:
         st.markdown("## ⚙️ Settings")
 
-        weights_path = st.text_input(
-            "Model Weights Path",
-            value="models/best.pt",
-            help="Path to trained YOLOv8 .pt file",
-        )
+        # CHANGED: Moved Model Weights Path into Advanced / Developer Settings expander
+        with st.sidebar.expander("⚙️ Advanced / Developer Settings"):
+            weights_path = st.text_input(
+                "Model Weights Path",
+                value="models/best.pt",
+                help="Path to trained YOLOv8 .pt file",
+            )
 
         conf_threshold = st.slider(
             "Confidence Threshold",
@@ -332,12 +334,12 @@ def main():
         st.sidebar.markdown("### 📊 Model Performance")
         metrics_col1, metrics_col2 = st.sidebar.columns(2)
         with metrics_col1:
-            st.metric("mAP@50", "98.9%", help="Baseline (5-epoch, ring-only). Updating after full 5-class training.")
-            st.metric("Precision", "96.1%", help="Baseline (5-epoch, ring-only). Updating after full 5-class training.")
+            st.metric("mAP@50", "98.9%", help="In-progress training checkpoint (epoch 35/50, 5-class). Final results updating soon.")  # CHANGED: Updated help text
+            st.metric("Precision", "96.1%", help="In-progress training checkpoint (epoch 35/50, 5-class). Final results updating soon.")  # CHANGED: Updated help text
         with metrics_col2:
-            st.metric("Recall", "97.8%", help="Baseline (5-epoch, ring-only). Updating after full 5-class training.")
-            st.metric("F1 Score", "96.9%", help="Calculated from baseline precision/recall.")
-        st.sidebar.caption("Baseline metrics (5-epoch validation run)")
+            st.metric("Recall", "97.8%", help="In-progress training checkpoint (epoch 35/50, 5-class). Final results updating soon.")  # CHANGED: Updated help text
+            st.metric("F1 Score", "96.9%", help="In-progress training checkpoint (epoch 35/50, 5-class). Final results updating soon.")  # CHANGED: Updated help text
+        st.sidebar.caption("In-progress training checkpoint (epoch 35/50, 5-class).")  # CHANGED: Updated caption
 
         st.markdown("---")
         st.markdown("### 📊 About")
@@ -579,6 +581,9 @@ def main():
             </div>
             """, unsafe_allow_html=True)
             st.markdown("<br>", unsafe_allow_html=True)
+
+            # CHANGED: Inference timing caption (Single Image mode)
+            st.caption(f"⏱️ Inference completed in {result.inference_time_sec:.2f} seconds (CPU)")
 
             # --- CHANGED: Detection Crop Gallery (Single Image mode only) ---
             _render_detection_gallery(image_bgr, result)
@@ -824,6 +829,8 @@ def main():
                                 f"Total cells: {res.total_rbc + res.total_parasites} · "
                                 f"Parasites: {res.total_parasites}"
                             )
+                            # CHANGED: Inference timing caption per-image in Batch mode
+                            st.caption(f"⏱️ Inference completed in {res.inference_time_sec:.2f} seconds (CPU)")
                         # NOTE: Detection crop gallery could be added here per-expander
                         # in a future iteration, but is omitted to avoid performance
                         # issues with large batches.
