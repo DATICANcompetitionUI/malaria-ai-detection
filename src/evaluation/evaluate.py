@@ -82,9 +82,9 @@ def extract_metrics(results: Any) -> Dict[str, Any]:
 
     # Per-class breakdown
     for i, name in enumerate(CLASS_NAMES):
-        if i < len(box.ap50()):
+        if i < len(box.ap50):
             metrics["per_class"][name] = {
-                "AP50": float(box.ap50()[i]),
+                "AP50": float(box.ap50[i]),
                 "precision": float(box.p[i]) if i < len(box.p) else None,
                 "recall": float(box.r[i]) if i < len(box.r) else None,
             }

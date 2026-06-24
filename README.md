@@ -303,30 +303,31 @@ streamlit run app/streamlit_app.py
 
 ### Per-Class Performance
 
-> Per-class breakdown will be generated via `evaluate.py` once full training 
-> completes. The current checkpoint shows strong performance on `ring` 
-> specifically, with the remaining four classes (especially `schizont` and 
-> `gametocyte`, the rarest classes in the dataset) expected to improve 
-> substantially with the remaining training epochs.
+The model was evaluated on the BBBC041 validation set after 50 training epochs using YOLOv8. Performance varies across parasite stages due to significant class imbalance in the dataset. Red blood cells and trophozoites achieve the strongest results, while schizonts and gametocytes remain the most challenging classes because they are the rarest categories in the training data.
 
-| Class | AP@0.5 | Precision | Recall |
-|-------|--------|-----------|--------|
-| Ring | — | — | — |
-| Trophozoite | — | — | — |
-| Schizont | — | — | — |
-| Gametocyte | — | — | — |
-| Red Blood Cell | — | — | — |
+| Class          | AP@0.5 | Precision | Recall |
+| -------------- | -----: | --------: | -----: |
+| Ring           |  0.655 |     0.689 |  0.553 |
+| Trophozoite    |  0.808 |     0.631 |  0.896 |
+| Schizont       |  0.350 |     0.264 |  0.533 |
+| Gametocyte     |  0.348 |     0.377 |  0.421 |
+| Red Blood Cell |  0.993 |     0.959 |  0.994 |
 
+### Overall Validation Performance
 
-### Per-Class Performance
+| Metric       | Value |
+| ------------ | ----: |
+| Precision    | 0.584 |
+| Recall       | 0.679 |
+| mAP@0.5      | 0.631 |
+| mAP@0.5:0.95 | 0.534 |
 
-| Class | AP@0.5 | Precision | Recall |
-|-------|--------|-----------|--------|
-| Ring | — | — | — |
-| Trophozoite | — | — | — |
-| Schizont | — | — | — |
-| Gametocyte | — | — | — |
-| Red Blood Cell | — | — | — |
+### Notes
+
+* The model demonstrates strong performance in detecting red blood cells and trophozoites.
+* Performance on schizonts and gametocytes is lower due to severe class imbalance in the BBBC041 dataset (15 schizonts and 19 gametocytes in the validation set).
+* The system incorporates uncertainty flagging and human-review workflows to improve safety when confidence is low.
+* Future improvements include dataset balancing, additional annotated samples for rare parasite stages, and model ensemble techniques.
 
 ---
 
