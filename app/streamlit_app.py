@@ -289,7 +289,7 @@ def main():
     st.markdown("""
     <div class="main-header">
         <h1>🔬 AI-Powered Malaria Detection</h1>
-        <p>YOLOv8 Object Detection • P. vivax Parasite Identification • Blood Smear Analysis</p>
+        <p>Detects and classifies Plasmodium vivax parasite stages from microscopy images in seconds</p>
     </div>
     """, unsafe_allow_html=True)
 
