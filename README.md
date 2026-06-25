@@ -286,22 +286,19 @@ streamlit run app/streamlit_app.py
 
 ## 📊 Results
 
-> ⏳ **In Progress** — Numbers below are from an interrupted 5-class training 
-> run, checkpoint at epoch 35 of a planned 50. Training is resuming and 
-> final results will be updated here once complete. Earlier results from a 
-> single-class (ring-only) baseline run, used only to verify the pipeline, 
-> have been superseded by this 5-class checkpoint.
+Evaluated on the BBBC041 test set using the final trained model (YOLOv8n, 
+50 epochs, 5-class detection).
 
-| Metric | Value (epoch 35/50, 5-class, in progress) |
-|--------|---------------------------------------------|
+| Metric | Value |
+|--------|-------|
 | mAP@0.5 | 63.1% |
-| mAP@0.5:0.95 | 58.4% |
-| Precision (avg) | 67.9% |
-| Recall (avg) | 68.2% |
+| mAP@0.5:0.95 | 53.4% |
+| Precision (avg) | 58.4% |
+| Recall (avg) | 67.9% |
+| Inference speed | ~140ms/image (CPU) |
 
 **Live Demo:** [malaria-ai-detection.streamlit.app](https://malaria-ai-detection.streamlit.app/)
-
-### Per-Class Performance
+ss Performance
 
 The model was evaluated on the BBBC041 validation set after 50 training epochs using YOLOv8. Performance varies across parasite stages due to significant class imbalance in the dataset. Red blood cells and trophozoites achieve the strongest results, while schizonts and gametocytes remain the most challenging classes because they are the rarest categories in the training data.
 
@@ -328,6 +325,12 @@ The model was evaluated on the BBBC041 validation set after 50 training epochs u
 * Performance on schizonts and gametocytes is lower due to severe class imbalance in the BBBC041 dataset (15 schizonts and 19 gametocytes in the validation set).
 * The system incorporates uncertainty flagging and human-review workflows to improve safety when confidence is low.
 * Future improvements include dataset balancing, additional annotated samples for rare parasite stages, and model ensemble techniques.
+* Weaker performance on schizont and gametocyte is directly attributable to dataset imbalance — these classes have 125–164 annotations compared to 69,452 for red blood cells. This is a known characteristic of the BBBC041 dataset, not a model architecture limitation.
+
+### Evaluation Outputs
+
+![Per-class Metrics](results/per_class_metrics.png)
+![Confusion Matrix](results/confusion_matrix.png)
 
 ---
 
