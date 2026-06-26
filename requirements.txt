@@ -37,3 +37,4 @@ fpdf2==2.8.2
 # ---------- Utilities ----------
 tqdm==4.67.1
 requests==2.32.3
+plotly==5.18.0
