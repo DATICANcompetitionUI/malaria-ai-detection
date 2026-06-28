@@ -881,7 +881,8 @@ def main():
         <div style="text-align:center; padding:0.8rem; 
                     background:linear-gradient(135deg,#1a1a2e,#16213e); 
                     border:1px solid #233554; border-radius:10px; 
-                    height:100px; display:flex; flex-direction:column; 
+                    min-height: 110px;
+                    display:flex; flex-direction:column; 
                     justify-content:center;">
             <div style="font-size:1.4rem;">🦠</div>
             <div style="font-size:0.95rem; font-weight:700; 
@@ -899,7 +900,8 @@ def main():
         <div style="text-align:center; padding:0.8rem; 
                     background:linear-gradient(135deg,#1a1a2e,#16213e); 
                     border:1px solid #233554; border-radius:10px; 
-                    height:100px; display:flex; flex-direction:column; 
+                    min-height: 110px;
+                    display:flex; flex-direction:column; 
                     justify-content:center;">
             <div style="font-size:1.4rem;">✔</div>
             <div style="font-size:0.95rem; font-weight:700; 
@@ -917,7 +919,8 @@ def main():
         <div style="text-align:center; padding:0.8rem; 
                     background:linear-gradient(135deg,#1a1a2e,#16213e); 
                     border:1px solid #233554; border-radius:10px; 
-                    height:100px; display:flex; flex-direction:column; 
+                    min-height: 110px;
+                    display:flex; flex-direction:column; 
                     justify-content:center;">
             <div style="font-size:1.4rem;">🏥</div>
             <div style="font-size:0.95rem; font-weight:700; 
@@ -936,7 +939,8 @@ def main():
         <div style="text-align:center; padding:0.8rem; 
                     background:linear-gradient(135deg,#1a1a2e,#16213e); 
                     border:1px solid #233554; border-radius:10px; 
-                    height:100px; display:flex; flex-direction:column; 
+                    min-height: 110px;
+                    display:flex; flex-direction:column; 
                     justify-content:center;">
             <div style="font-size:1.4rem;">📋</div>
             <div style="font-size:0.95rem; font-weight:700; 
@@ -1072,8 +1076,10 @@ def main():
                 <div style="font-size:0.85rem; color:#64ffda;
                             font-weight:600;">{meta['report_number']}</div>
                 """, unsafe_allow_html=True)
+            _, _, meta_col4 = st.columns([3, 3, 1])
             with meta_col4:
-                if st.button("🗑 Clear Patient Details", key="clear_patient"):
+                if st.button("🗑 Clear", key="clear_patient", 
+                            help="Clear all patient details"):
                     st.session_state["patient_details"] = {
                         "name": "", "age": None, "sex": "",
                         "patient_id": "", "clinician": "",
