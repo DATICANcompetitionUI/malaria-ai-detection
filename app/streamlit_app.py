@@ -46,16 +46,19 @@ from src.inference.predict import (  # CHANGED: Extended imports
 # ---------------------------------------------------------------------------
 # PDF Report Generation
 # ---------------------------------------------------------------------------
-# CHANGE 7
+# CHANGE 3 — Updated PDF signature with patient details
 def generate_pdf_report(
     result: PredictionResult,
     annotated_img: np.ndarray,
     uncertain_count: int = 0,
+    patient_details: dict = None,
+    report_meta: dict = None,
+    scan_status: str = "",
 ) -> bytes:
     """Generate a downloadable PDF report with detection results.
 
     The PDF includes:
-      • Header with timestamp and file info
+      • Enhanced clinical header with patient information
       • Parasitemia percentage (large, bold)
       • Clinical Interpretation
       • Stage-Specific Clinical Notes
@@ -72,13 +75,117 @@ def generate_pdf_report(
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # --- Header ---
+    # CHANGE 4 — Enhanced clinical PDF header
+
+    # ── Title bar ──
+    pdf.set_fill_color(15, 52, 96)
+    pdf.set_text_color(255, 255, 255)
     pdf.set_font("Helvetica", "B", 20)
-    pdf.cell(0, 12, strip_emoji_for_pdf("Malaria Detection Report"), ln=True, align="C")
-    pdf.set_font("Helvetica", "", 10)
-    pdf.cell(0, 8, strip_emoji_for_pdf(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"), ln=True, align="C")
-    pdf.cell(0, 8, strip_emoji_for_pdf(f"Image: {Path(result.image_path).name}"), ln=True, align="C")
-    pdf.ln(8)
+    pdf.cell(0, 14, "Laboratory AI Screening Report",
+             ln=True, align="C", fill=True)
+    pdf.set_font("Helvetica", "", 8)
+    pdf.cell(0, 6,
+             "Malaria Parasite Detection · YOLOv8 Object Detection · "
+             "BBBC041 Dataset · Team Devions · NACOS UI x DATICAN 2026",
+             ln=True, align="C", fill=True)
+    pdf.set_text_color(0, 0, 0)
+    pdf.ln(5)
+
+    # ── Report metadata row ──
+    if report_meta:
+        pdf.set_font("Helvetica", "", 8)
+        pdf.set_fill_color(245, 247, 250)
+        meta_line = (
+            f"Report No: {report_meta.get('report_number', 'N/A')}     "
+            f"Study ID: {report_meta.get('study_id', 'N/A')}     "
+            f"Date: {report_meta.get('date', '')}  {report_meta.get('time', '')}     "
+            f"Image: {Path(result.image_path).name}"
+        )
+        pdf.cell(0, 7, meta_line, ln=True, fill=True, align="C")
+        pdf.ln(4)
+
+    # ── Patient information table ──
+    if patient_details and any(
+        v for v in patient_details.values() if v
+    ):
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.cell(0, 8, "Patient Information", ln=True)
+        pdf.ln(1)
+
+        col_label = 52
+        col_value = 128
+        row_h = 7
+
+        def _pdf_row(label, value, bold_value=False):
+            if not value and value != 0:
+                return
+            pdf.set_fill_color(237, 242, 247)
+            pdf.set_font("Helvetica", "B", 9)
+            pdf.cell(col_label, row_h, f"  {label}",
+                     border=1, fill=True)
+            pdf.set_fill_color(255, 255, 255)
+            pdf.set_font(
+                "Helvetica", "B" if bold_value else "", 9
+            )
+            pdf.cell(col_value, row_h,
+                     f"  {strip_emoji_for_pdf(str(value))}",
+                     border=1, fill=True, ln=True)
+
+        if patient_details.get("name"):
+            _pdf_row("Patient Name",
+                     patient_details["name"], bold_value=True)
+        if patient_details.get("patient_id"):
+            _pdf_row("Patient / Sample ID",
+                     patient_details["patient_id"])
+
+        age_sex_parts = []
+        if patient_details.get("age"):
+            age_sex_parts.append(
+                f"{patient_details['age']} years"
+            )
+        if patient_details.get("sex"):
+            age_sex_parts.append(patient_details["sex"])
+        if age_sex_parts:
+            _pdf_row("Age / Sex", "  |  ".join(age_sex_parts))
+
+        if patient_details.get("clinician"):
+            _pdf_row("Requesting Clinician",
+                     patient_details["clinician"])
+        if patient_details.get("facility"):
+            _pdf_row("Health Facility",
+                     patient_details["facility"])
+
+        # Scan status
+        if scan_status:
+            _pdf_row("AI Screening Status",
+                     scan_status, bold_value=True)
+
+        if patient_details.get("notes"):
+            pdf.ln(3)
+            pdf.set_font("Helvetica", "B", 9)
+            pdf.cell(0, 6, "Clinical Notes:", ln=True)
+            pdf.set_font("Helvetica", "", 9)
+            pdf.multi_cell(
+                0, 5,
+                f"  {strip_emoji_for_pdf(patient_details['notes'])}"
+            )
+
+        pdf.ln(6)
+
+    else:
+        # Fallback minimal header when no patient details provided
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(
+            0, 7,
+            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            ln=True, align="C"
+        )
+        pdf.cell(
+            0, 7,
+            f"Image: {Path(result.image_path).name}",
+            ln=True, align="C"
+        )
+        pdf.ln(6)
 
     # --- Parasitemia ---
     pdf.set_font("Helvetica", "B", 16)
@@ -337,6 +444,31 @@ def main():
         layout="wide",
         initial_sidebar_state="expanded",
     )
+
+    # CHANGE 1 — Patient intake session state
+    if "patient_details" not in st.session_state:
+        st.session_state["patient_details"] = {
+            "name": "",
+            "age": None,
+            "sex": "",
+            "patient_id": "",
+            "clinician": "",
+            "facility": "",
+            "notes": "",
+        }
+
+    # Auto-generate report number and study ID for this session
+    if "report_meta" not in st.session_state:
+        import random
+        import string
+        session_date = datetime.now().strftime("%Y%m%d")
+        report_seq = random.randint(10000, 99999)
+        st.session_state["report_meta"] = {
+            "report_number": f"RPT-{session_date}-{report_seq}",
+            "study_id": f"STD-{''.join(random.choices(string.ascii_uppercase, k=2))}{random.randint(100,999)}",
+            "date": datetime.now().strftime("%d %B %Y"),
+            "time": datetime.now().strftime("%H:%M"),
+        }
 
     # CHANGE — CSS Polish
     st.markdown("""
@@ -735,9 +867,9 @@ def main():
         | **Inference** | ~140ms/img |
         """)
         st.sidebar.warning(
-            "⚠️ Research use only. Not a certified "
-            "medical diagnostic device. Always confirm "
-            "with a qualified microscopist."
+            f"Note: Research use only. Not a certified "
+            f"medical diagnostic device. Always confirm "
+            f"with a qualified microscopist."
         )
         
     # --- CHANGED: Analysis mode toggle ---
@@ -833,6 +965,145 @@ def main():
     # SINGLE IMAGE MODE
     # ===================================================================
     if mode == "Single Image":  # CHANGED: Wrap existing flow in mode check
+
+        # CHANGE 2 — Patient intake form
+        with st.expander("🏥 Patient Information", expanded=True):
+            st.caption(
+                "Details entered here are stored temporarily for this session only. "
+                "They are never saved to any server or database. All fields are optional."
+            )
+
+            pt_col1, pt_col2, pt_col3 = st.columns(3)
+
+            with pt_col1:
+                p_name = st.text_input(
+                    "Patient Name",
+                    value=st.session_state["patient_details"]["name"],
+                    placeholder="e.g. Femi Okoro",
+                    key="pt_name",
+                )
+                st.session_state["patient_details"]["name"] = p_name
+
+                p_age = st.number_input(
+                    "Age (years)",
+                    min_value=0,
+                    max_value=120,
+                    value=st.session_state["patient_details"]["age"]
+                          if st.session_state["patient_details"]["age"] else 0,
+                    step=1,
+                    key="pt_age",
+                    help="Enter 0 if age is unknown",
+                )
+                # Store None if age is 0 (unknown), otherwise store value
+                st.session_state["patient_details"]["age"] = (
+                    p_age if p_age > 0 else None
+                )
+
+            with pt_col2:
+                p_sex = st.selectbox(
+                    "Sex (optional)",
+                    options=["", "Male", "Female", "Other / Prefer not to say"],
+                    index=["", "Male", "Female",
+                           "Other / Prefer not to say"].index(
+                        st.session_state["patient_details"]["sex"]
+                    ) if st.session_state["patient_details"]["sex"] in
+                       ["", "Male", "Female",
+                        "Other / Prefer not to say"] else 0,
+                    key="pt_sex",
+                )
+                st.session_state["patient_details"]["sex"] = p_sex
+
+                p_id = st.text_input(
+                    "Patient / Sample ID",
+                    value=st.session_state["patient_details"]["patient_id"],
+                    placeholder="e.g. LAB-2026-00142",
+                    key="pt_id",
+                    help="Hospital or laboratory identifier used in report filename",
+                )
+                st.session_state["patient_details"]["patient_id"] = p_id
+
+            with pt_col3:
+                p_clinician = st.text_input(
+                    "Requesting Clinician",
+                    value=st.session_state["patient_details"]["clinician"],
+                    placeholder="e.g. Dr. O.I Olayemi",
+                    key="pt_clinician",
+                )
+                st.session_state["patient_details"]["clinician"] = p_clinician
+
+                p_facility = st.text_input(
+                    "Health Facility",
+                    value=st.session_state["patient_details"]["facility"],
+                    placeholder="e.g. University College Hospital Ibadan",
+                    key="pt_facility",
+                )
+                st.session_state["patient_details"]["facility"] = p_facility
+
+            p_notes = st.text_area(
+                "Clinical Notes (Optional)",
+                value=st.session_state["patient_details"]["notes"],
+                placeholder="e.g. Fever for 3 days, suspected malaria, "
+                            "prior ACT treatment 6 months ago...",
+                height=80,
+                max_chars=250,
+                key="pt_notes",
+                help="Brief clinical history or presenting complaints. Max 250 characters.",
+            )
+            st.session_state["patient_details"]["notes"] = p_notes
+
+            # Auto-generated metadata display
+            meta = st.session_state["report_meta"]
+            meta_col1, meta_col2, meta_col3, meta_col4 = st.columns(4)
+            with meta_col1:
+                st.markdown(f"""
+                <div style="font-size:0.75rem; color:#8892b0;">Today's Date</div>
+                <div style="font-size:0.85rem; color:#64ffda;
+                            font-weight:600;">{meta['date']}</div>
+                """, unsafe_allow_html=True)
+            with meta_col2:
+                st.markdown(f"""
+                <div style="font-size:0.75rem; color:#8892b0;">Study ID</div>
+                <div style="font-size:0.85rem; color:#64ffda;
+                            font-weight:600;">{meta['study_id']}</div>
+                """, unsafe_allow_html=True)
+            with meta_col3:
+                st.markdown(f"""
+                <div style="font-size:0.75rem; color:#8892b0;">Report Number</div>
+                <div style="font-size:0.85rem; color:#64ffda;
+                            font-weight:600;">{meta['report_number']}</div>
+                """, unsafe_allow_html=True)
+            with meta_col4:
+                if st.button("🗑 Clear Patient Details", key="clear_patient"):
+                    st.session_state["patient_details"] = {
+                        "name": "", "age": None, "sex": "",
+                        "patient_id": "", "clinician": "",
+                        "facility": "", "notes": "",
+                    }
+                    st.rerun()
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # Compact patient summary — shows automatically as fields are filled
+            details = st.session_state["patient_details"]
+            if any([details["name"], details["patient_id"],
+                    details["clinician"], details["facility"]]):
+                summary_parts = []
+                if details["name"]:
+                    summary_parts.append(f"**{details['name']}**")
+                if details["age"]:
+                    summary_parts.append(f"Age {details['age']}")
+                if details["sex"]:
+                    summary_parts.append(details["sex"])
+                if details["patient_id"]:
+                    summary_parts.append(f"ID: `{details['patient_id']}`")
+                if details["clinician"]:
+                    summary_parts.append(f"Ref: {details['clinician']}")
+
+                # Status will be filled after inference — placeholder for now
+                st.info(
+                    "🏥 " + " · ".join(summary_parts) +
+                    f" · Report: {meta['report_number']}"
+                )
 
         # --- Main content ---
         uploaded_file = st.file_uploader(
@@ -1134,12 +1405,50 @@ def main():
                 with dl_col1:
                     # PDF Report
                     try:
-                        # CHANGE 7 — updated call
-                        pdf_bytes = generate_pdf_report(result, result.annotated_image, uncertain_count)
+                        # CHANGE 5 — Updated PDF call with patient details
+                        # Determine scan status for PDF
+                        if result.total_parasites == 0:
+                            scan_status = "Negative — No parasites detected"
+                        elif uncertain_count > 0 and result.total_parasites == uncertain_count:
+                            scan_status = "Needs Review — Uncertain detections only"
+                        else:
+                            scan_status = (
+                                f"Positive — {result.total_parasites} parasite(s) detected"
+                            )
+
+                        pdf_bytes = generate_pdf_report(
+                            result,
+                            result.annotated_image,
+                            uncertain_count=uncertain_count,
+                            patient_details=st.session_state.get("patient_details"),
+                            report_meta=st.session_state.get("report_meta"),
+                            scan_status=scan_status,
+                        )
+
+                        # Use Patient ID for filename — more clinical, more private than name
+                        patient_id_slug = (
+                            st.session_state.get("patient_details", {})
+                            .get("patient_id", "")
+                            .replace(" ", "-")
+                            .replace("/", "-")
+                            .strip("-")
+                        )
+                        report_num = (
+                            st.session_state.get("report_meta", {})
+                            .get("report_number", "")
+                            .replace("-", "")
+                        )
+                        if patient_id_slug:
+                            pdf_filename = f"{patient_id_slug}_malaria_report.pdf"
+                        elif report_num:
+                            pdf_filename = f"{report_num}_malaria_report.pdf"
+                        else:
+                            pdf_filename = f"malaria_report_{Path(image_name).stem}.pdf"
+
                         st.download_button(
                             label="📄 Download PDF Report",
                             data=pdf_bytes,
-                            file_name=f"malaria_report_{Path(image_name).stem}.pdf",
+                            file_name=pdf_filename,
                             mime="application/pdf",
                         )
                     except ImportError:
