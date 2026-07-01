@@ -55,8 +55,8 @@ CLASS_COLORS = {
 # CHANGED: Uncertainty classification thresholds for clinical safety
 # Only detections with confidence in [LOW, HIGH] are flagged as "uncertain".
 # Detections below LOW that still pass the user's confidence slider are drawn normally.
-UNCERTAINTY_THRESHOLD_LOW = 0.45    # Lower bound for uncertain tier
-UNCERTAINTY_THRESHOLD_HIGH = 0.55   # Upper bound — above this is "confident"
+UNCERTAINTY_THRESHOLD_LOW = 0.35    # Lower bound for uncertain tier
+UNCERTAINTY_THRESHOLD_HIGH = 0.45   # Upper bound — above this is "confident"
 UNCERTAIN_COLOR = (0, 255, 255)     # Yellow (BGR) for uncertain detections
 
 
@@ -233,7 +233,7 @@ class MalariaDetector:
             x1, y1, x2, y2 = [int(v) for v in det.bbox_xyxy]
 
             # CHANGED: Classify detection into uncertainty tiers for clinical safety.
-            # Gate on BOTH bounds: only 0.35 <= conf <= 0.55 is "uncertain".
+            # Gate on BOTH bounds: only 0.35 <= conf <= 0.45 is "uncertain".
             # Detections below 0.35 that passed the slider are drawn normally.
             is_uncertain = (
                 UNCERTAINTY_THRESHOLD_LOW <= det.confidence <= UNCERTAINTY_THRESHOLD_HIGH

@@ -31,7 +31,9 @@
 - [License](#-license)
 - [Acknowledgements](#-acknowledgements)
 
+
 ---
+
 
 ## 🎯 Project Overview
 
@@ -54,8 +56,7 @@ gametocyte, alongside healthy red blood cells, providing:
   clinical notes, and WHO-aligned recommendations
 - **Interactive web demo** accessible from any browser, no GPU required
 
-Built for the **NACOS UI × DATICAN 2026 AI-in-Medicine Competition** with a
-focus on practical clinical applicability, responsible AI deployment, and
+Built for the **NACOS UI × DATICAN 2026 AI-in-Medicine Competition** with a focus on practical clinical applicability, responsible AI deployment, and
 real-world suitability for resource-limited African healthcare settings.
 
 ---
@@ -204,7 +205,7 @@ microscope, adjust illumination). Moderate issues show advisory warnings that
 allow the user to proceed with caution. A clean pass shows a positive
 confirmation before analysis begins.
 
-### Human-in-the-Loop Verification
+### 👨🏽‍⚕️ Human-in-the-Loop Verification
 Detections with confidence between **35–45%** are flagged as *Inconclusive*
 and presented as individual zoomed crops with **Accept** / **Reject**
 controls. All clinical outputs recalculate in real time:
@@ -228,7 +229,7 @@ Unreviewed uncertain detections default to *accepted* (conservative — in
 clinical screening, missing a real infection is more dangerous than a false
 positive a microscopist can dismiss).
 
-### Clinical PDF Report
+### 📄 Clinical PDF Report
 Every analysis generates a downloadable report structured like a real
 laboratory document:
 
@@ -248,13 +249,13 @@ When human-in-the-loop verification has occurred, the report is clearly
 labelled **[Clinician-Verified]** and the detection table reflects reviewed
 counts, not raw model output.
 
-### Batch Processing
+### 📊 Batch Processing
 Analyse multiple slides in a single session. A progress bar updates as each
 image is processed. Results export as a downloadable CSV summary with
 per-slide parasite count, uncertain detections, parasitemia percentage, and
 positive/negative status.
 
-### Detailed Analysis Charts
+### 📈 Detailed Analysis Charts
 An expandable section below each analysis result contains:
 - **Confidence distribution bar chart** — high confidence vs uncertain vs RBC
   detections
