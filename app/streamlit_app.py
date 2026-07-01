@@ -1211,10 +1211,10 @@ def main():
         sample_col1, sample_col2, sample_col3 = st.columns(3)
         with sample_col1:
             if st.button("🔬 Sample 1 — Infected"):
-                st.session_state["sample_image"] = "app/samples/infected_sample.png"
+                st.session_state["sample_image"] = "app/samples/infected_sample.jpg"
         with sample_col2:
             if st.button("🔬 Sample 2 — Mixed"):
-                st.session_state["sample_image"] = "app/samples/mixed_sample.png"
+                st.session_state["sample_image"] = "app/samples/mixed_sample.jpg"
         with sample_col3:
             if st.button("🔬 Sample 3 — Healthy"):
                 st.session_state["sample_image"] = "app/samples/healthy_sample.jpg"
