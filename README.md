@@ -148,19 +148,34 @@ cause was identified.
 
 ---
 
-## 🏗 Architecture
-┌──────────────┐    ┌─────────────────┐    ┌─────────────┐    ┌──────────────┐
+┌─────────────────────────────────────────────────────┐
+│              CLINICAL WORKFLOW PIPELINE              │
+└─────────────────────────────────────────────────────┘
 
-│  BBBC041     │    │  normalize_      │    │  YOLOv8n    │    │  Streamlit   │
+  📋 Patient Intake          Report number, demographics
+         │
+         ▼
+  🔍 Slide Quality Check     Blur · Brightness · Exposure
+         │
+         ▼
+  🧠 YOLOv8 Detection        5-class parasite localisation
+         │
+         ▼
+  ⚠️  Uncertainty Flagging   35–45% confidence → human review
+         │
+         ▼
+  👨‍⚕️ Clinician Verification  Accept / Reject flagged detections
+         │
+         ▼
+  📊 Parasitemia Estimation  Infected cells ÷ total cells × 100
+         │
+         ▼
+  🏥 WHO Severity Class.     Low · Moderate · Severe thresholds
+         │
+         ▼
+  📄 Clinical PDF Report     Interpretation · Notes · Recommendations
 
-│  Raw Images  │───▶│  labels.py       │───▶│  Training   │───▶│  Clinical    │
-
-│  + Bounding  │    │  (pixel coords   │    │  50 epochs  │    │  Workflow    │
-
-│  Box Annots  │    │  → YOLO 0-1)    │    │  CPU        │    │  + Reports   │
-
-└──────────────┘    └─────────────────┘    └─────────────┘    └──────────────┘
-
+---
 **Model:** YOLOv8n (Ultralytics) with COCO pre-trained weights for transfer
 learning. Nano variant chosen for CPU-friendly inference (~140ms/image) over
 larger variants requiring GPU — prioritising deployability in resource-limited
