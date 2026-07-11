@@ -17,6 +17,7 @@ import csv
 import io
 import sys
 import tempfile
+import time #CHANGED: Added for
 from datetime import datetime
 from pathlib import Path
 
@@ -498,6 +499,238 @@ def _count_tiers(result: PredictionResult):
 # ---------------------------------------------------------------------------
 # Streamlit App
 # ---------------------------------------------------------------------------
+def show_splash_screen():  #CHANGED
+    """Display a beautiful 5-second splash screen with dark theme, animations, and preloader."""
+    splash_html = """
+    <style>
+        /* Splash Screen Container */
+        .splash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideProgress {
+            0% {
+                width: 0%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* Splash Card */
+        .splash-card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 52, 96, 0.95) 100%);
+            border: 2px solid rgba(100, 255, 218, 0.2);
+            border-radius: 20px;
+            padding: 3.5rem 3rem;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                        inset 0 1px 0 rgba(100, 255, 218, 0.1);
+            animation: slideUp 0.8s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Logo Circle */
+        .logo-circle {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #e94560 0%, #ff6b7a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 4rem;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Title */
+        .splash-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 1rem 0 0.8rem;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+
+        /* Subtitle */
+        .splash-subtitle {
+            font-size: 0.95rem;
+            color: #8892b0;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        /* Status Text */
+        .splash-status {
+            font-size: 0.9rem;
+            color: #64ffda;
+            margin: 1.5rem 0 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #64ffda;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+
+        /* Preloader Bar Container */
+        .preloader-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(100, 255, 218, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 1.2rem;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animated Progress Bar */
+        .preloader-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #64ffda 0%, #00d4ff 50%, #64ffda 100%);
+            border-radius: 2px;
+            animation: slideProgress 5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.6);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .splash-card {
+                padding: 2.5rem 2rem;
+                max-width: 340px;
+            }
+
+            .splash-title {
+                font-size: 1.5rem;
+            }
+
+            .logo-circle {
+                width: 80px;
+                height: 80px;
+                font-size: 3.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .splash-card {
+                padding: 2rem 1.5rem;
+                max-width: 90%;
+            }
+
+            .splash-title {
+                font-size: 1.3rem;
+            }
+
+            .splash-status {
+                font-size: 0.85rem;
+            }
+
+            .logo-circle {
+                width: 70px;
+                height: 70px;
+                font-size: 2.8rem;
+            }
+        }
+    </style>
+
+    <div class="splash-overlay">
+        <div class="splash-card">
+            <div class="logo-circle">🔬</div>
+            <h1 class="splash-title">PlasmoID AI</h1>
+            <p class="splash-subtitle">A lab friendly Diagnostic System</p>
+            <div class="splash-status">
+                <span class="status-dot"></span>
+                Initializing diagnostics system...
+            </div>
+            <div class="preloader-container">
+                <div class="preloader-bar"></div>
+            </div>
+        </div>
+    </div>
+    """
+
+    # Display splash screen HTML  #CHANGED
+    st.markdown(splash_html, unsafe_allow_html=True)
+    
+    # Keep placeholder for 5 seconds #CHANGED
+    splash_placeholder = st.empty()
+    time.sleep(5)
+    
+    # Clear splash screen #CHANGED
+    st.rerun()
+
+
 def main():
     # --- Page config ---
     st.set_page_config(
@@ -506,6 +739,25 @@ def main():
         layout="wide",
         initial_sidebar_state="expanded",
     )
+    # ------ SESSION STATE------
+    # Track whether we've shown the splash this session
+    if "splash_shown" not in st.session_state:
+        st.session_state.splash_shown = False
+    if "dark_mode" not in st.session_state:
+        st.session_state.dark_mode = False
+    
+    # Page navigation
+    if "current_page" not in st.session_state:
+        st.session_state.current_page = "dashboard"
+
+    # Show splash screen only on first load
+    if not st.session_state.splash_shown:
+        st.session_state.splash_shown = True
+        show_splash_screen()
+        st.stop()
+
+
+
 
     # CHANGE 1 — Patient intake session state
     if "patient_details" not in st.session_state:
