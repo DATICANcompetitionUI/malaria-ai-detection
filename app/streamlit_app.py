@@ -760,72 +760,147 @@ def show_splash_screen():  #CHANGED
 
 # PART 3
 def render_dashboard():
+    # FIX 4 — Hero banner redesign (using global contrast colors from FIX 1)
     st.markdown("""
     <div style="background: linear-gradient(135deg, #0d0d1a, #1a1a2e, #0f3460);
-                border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;
-                border: 1px solid rgba(100,255,218,0.1);">
-        <h2 style="color: #e94560; margin-bottom: 0.3rem;">PlasmoID AI</h2>
-        <p style="color: #a8b2d1; margin: 0;">
-            AI Clinical Assistant for Malaria Microscopy
+                border-radius: 14px; padding: 1.2rem 1.8rem; margin-bottom: 1rem;
+                border: 1px solid rgba(255,255,255,0.12); text-align: center;">
+        <h2 style="color: #FFFFFF; margin-bottom: 0.2rem; font-size: 1.8rem;">
+            PlasmoID AI
+        </h2>
+        <p style="color: #D8DEE9; margin: 0 0 0.3rem 0; font-size: 0.95rem;">
+            AI-Assisted Clinical Decision Support
+        </p>
+        <p style="color: #9AA4B2; margin: 0 0 1rem 0; font-size: 0.78rem;">
+            YOLOv8n · WHO Workflow · Human Verification
         </p>
     </div>
     """, unsafe_allow_html=True)
     
+    _, cta_col, _ = st.columns([1, 1.2, 1])
+    with cta_col:
+        if st.button("🧫 Begin New Diagnosis", use_container_width=True, 
+                     type="primary"):
+            st.session_state["current_page"] = "diagnosis"
+            st.rerun()
+
+    # FIX 5 — Quick Facts: card grid replacing all tables
     st.markdown("### 📋 Quick Facts")
-    fact_col1, fact_col2 = st.columns(2)
-    with fact_col1:
-        # CHANGE 4 — Relocated metrics to dashboard quick facts
-        st.markdown("""
-        | | |
-        |---|---|
-        | **Model** | YOLOv8n |
-        | **Dataset** | BBBC041 |
-        | **Species** | *P. vivax* |
-        | **mAP@0.5** | 63.1% |
-        | **Precision** | 58.4% |
-        | **Recall** | 67.9% |
-        | **F1 Score** | 62.8% |
-        | **Inference** | ~140ms/img (CPU) |
-        """)
-    with fact_col2:
-        st.markdown("""
-        | | |
-        |---|---|
-        | **Detection** | 5-class object detection |
-        | **WHO Classification** | Enabled |
-        | **Human Verification** | Enabled |
-        | **Clinical Reports** | PDF + CSV |
-        | **Slide Quality Check** | Enabled |
-        """)
+    fact_items = [
+        ("🧠", "Model", "YOLOv8n"),
+        ("🩸", "Dataset", "BBBC041"),
+        ("🔬", "Species", "P. vivax"),
+        ("🎯", "mAP@0.5", "63.1%"),
+        ("📐", "Precision", "58.4%"),
+        ("📊", "Recall", "67.9%"),
+        ("⚖️", "F1 Score", "62.8%"),
+        ("⚡", "Inference", "140ms/img"),
+        ("🔍", "Detection", "5-class"),
+        ("🏥", "WHO Classification", "Enabled"),
+        ("👨⚕️", "Human Verification", "Enabled"),
+        ("📄", "Clinical Reports", "PDF + CSV"),
+    ]
     
+    # 4 columns grid, reduced vertical padding and spacing (FIX 3)
+    num_cols = 4
+    for row_start in range(0, len(fact_items), num_cols):
+        row_items = fact_items[row_start:row_start + num_cols]
+        cols = st.columns(num_cols)
+        for col, (icon, label, value) in zip(cols, row_items):
+            with col:
+                st.markdown(f"""
+                <div style="background: #16213e; 
+                            border: 1px solid rgba(255,255,255,0.12); 
+                            border-radius: 10px; padding: 0.8rem 0.7rem; 
+                            text-align: center; margin-bottom: 0.7rem; 
+                            min-height: 85px; display: flex; 
+                            flex-direction: column; justify-content: center;">
+                    <div style="font-size: 1.3rem;">{icon}</div>
+                    <div style="font-size: 0.68rem; color: #9AA4B2; 
+                                text-transform: uppercase; letter-spacing: 0.05em; 
+                                margin-top: 0.35rem; font-weight: 600;">{label}</div>
+                    <div style="font-size: 1rem; font-weight: 700; 
+                                color: #FFFFFF; margin-top: 0.25rem;">{value}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+    # FIX 6 — Clinical Workflow: horizontal wrapping flow card
     st.markdown("### 🔄 Clinical Workflow")
     st.markdown("""
-    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; 
-                align-items: center; font-size: 0.9rem; color: #a8b2d1;">
-        <span>🧫 Upload</span> <span style="color:#64ffda;">→</span>
-        <span>🔍 Quality Check</span> <span style="color:#64ffda;">→</span>
-        <span>🧠 Detection</span> <span style="color:#64ffda;">→</span>
-        <span>👨⚕️ Verification</span> <span style="color:#64ffda;">→</span>
-        <span>📈 Parasitemia</span> <span style="color:#64ffda;">→</span>
-        <span>🏥 WHO Classification</span> <span style="color:#64ffda;">→</span>
-        <span>📄 Report</span>
+    <div style="background: #16213e; border: 1px solid rgba(255,255,255,0.12); 
+                border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+                display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.8rem;">
+        <div style="text-align: center; flex: 1; min-width: 95px;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.2rem;">🧫</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: #FFFFFF;">Upload</div>
+            <div style="font-size: 0.68rem; color: #9AA4B2;">Submit Smear</div>
+        </div>
+        <div style="font-size: 1.2rem; color: #64ffda; font-weight: bold; text-align: center;">→</div>
+        <div style="text-align: center; flex: 1; min-width: 95px;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.2rem;">🔍</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: #FFFFFF;">Quality</div>
+            <div style="font-size: 0.68rem; color: #9AA4B2;">Assess Image</div>
+        </div>
+        <div style="font-size: 1.2rem; color: #64ffda; font-weight: bold; text-align: center;">→</div>
+        <div style="text-align: center; flex: 1; min-width: 95px;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.2rem;">🧠</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: #FFFFFF;">Detect</div>
+            <div style="font-size: 0.68rem; color: #9AA4B2;">YOLOv8 AI Scan</div>
+        </div>
+        <div style="font-size: 1.2rem; color: #64ffda; font-weight: bold; text-align: center;">→</div>
+        <div style="text-align: center; flex: 1; min-width: 95px;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.2rem;">👨‍⚕️</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: #FFFFFF;">Verify</div>
+            <div style="font-size: 0.68rem; color: #9AA4B2;">Clinical Review</div>
+        </div>
+        <div style="font-size: 1.2rem; color: #64ffda; font-weight: bold; text-align: center;">→</div>
+        <div style="text-align: center; flex: 1; min-width: 95px;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.2rem;">📄</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: #FFFFFF;">Report</div>
+            <div style="font-size: 0.68rem; color: #9AA4B2;">PDF & CSV</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
-    
+
+    # Key Features card grid (using contrast palette, FIX 3 compact heights)
     st.markdown("### ✓ Key Features")
     feat_col1, feat_col2, feat_col3 = st.columns(3)
     with feat_col1:
-        st.markdown("✓ Human-in-the-loop AI")
-        st.markdown("✓ Explainable Detection")
+        st.markdown("""
+        <div style="background: #16213e; border: 1px solid rgba(255,255,255,0.12);
+                    border-radius: 10px; padding: 0.8rem 0.7rem; min-height: 85px;
+                    display: flex; flex-direction: column; justify-content: center; margin-bottom: 0.5rem;">
+            <div style="font-weight: 600; color: #FFFFFF; font-size: 0.85rem;">🤖 Clinical AI Assist</div>
+            <div style="font-size: 0.75rem; color: #D8DEE9; margin-top: 0.2rem;">
+                Human-in-the-loop verification & explainable predictions.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     with feat_col2:
-        st.markdown("✓ Clinical PDF Report")
-        st.markdown("✓ Slide Quality Check")
+        st.markdown("""
+        <div style="background: #16213e; border: 1px solid rgba(255,255,255,0.12);
+                    border-radius: 10px; padding: 0.8rem 0.7rem; min-height: 85px;
+                    display: flex; flex-direction: column; justify-content: center; margin-bottom: 0.5rem;">
+            <div style="font-weight: 600; color: #FFFFFF; font-size: 0.85rem;">📋 Quality & Reporting</div>
+            <div style="font-size: 0.75rem; color: #D8DEE9; margin-top: 0.2rem;">
+                Pre-scan quality checks and clinician-verified PDF/CSV reports.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     with feat_col3:
-        st.markdown("✓ Batch Processing")
-        st.markdown("✓ CPU-Only Inference")
-    
+        st.markdown("""
+        <div style="background: #16213e; border: 1px solid rgba(255,255,255,0.12);
+                    border-radius: 10px; padding: 0.8rem 0.7rem; min-height: 85px;
+                    display: flex; flex-direction: column; justify-content: center; margin-bottom: 0.5rem;">
+            <div style="font-weight: 600; color: #FFFFFF; font-size: 0.85rem;">⚡ CPU Optimization</div>
+            <div style="font-size: 0.75rem; color: #D8DEE9; margin-top: 0.2rem;">
+                Batch processing support optimized for standard CPU inference.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
     st.markdown("---")
-    # CHANGE 5 — Relocated disclaimer to dashboard page
+    # Relocated disclaimers using global contrast palette
     st.warning(
         "Note: Research use only. Not a certified "
         "medical diagnostic device. Always confirm "
@@ -836,15 +911,7 @@ def render_dashboard():
         "standalone diagnostic tool. All findings require confirmation "
         "by a qualified microscopist."
     )
-    
     st.markdown("<br>", unsafe_allow_html=True)
-    _, cta_col, _ = st.columns([1, 1, 1])
-    with cta_col:
-        if st.button("⚕️ Start New Diagnosis", use_container_width=True, 
-                     type="primary"):
-            st.session_state["current_page"] = "diagnosis"
-            st.rerun()
-
 
 def main():
     # --- Page config ---
@@ -934,12 +1001,15 @@ def main():
         /* ============================================================
            GLOBAL LAYOUT & SPACING
         ============================================================ */
-        .block-container {
-            padding-top: 2rem !important;
-            padding-bottom: 3rem !important;
-            padding-left: 2.5rem !important;
-            padding-right: 2.5rem !important;
-            max-width: 1200px !important;
+        /* FIX 2 — Fix horizontal scrolling */
+        .main .block-container {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+        }
+        .main .block-container > div {
+            max-width: 100% !important;
         }
 
         /* Consistent vertical rhythm between all elements */
@@ -1079,6 +1149,25 @@ def main():
             letter-spacing: 0.01em !important;
             transition: all 0.25s ease !important;
             box-shadow: 0 2px 8px rgba(0, 194, 168, 0.3) !important;
+        }
+
+        /* FIX 7 — Sidebar button color */
+        [data-testid="stSidebar"] div[data-testid="stButton"] > button {
+            background: rgba(255,255,255,0.03) !important;
+            background-image: none !important;
+            color: #D8DEE9 !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            font-weight: 500 !important;
+            padding: 0.6rem 1rem !important;
+        }
+        [data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="primary"] {
+            background: rgba(100,255,218,0.12) !important;
+            background-image: none !important;
+            color: #64ffda !important;
+            border: 1px solid rgba(100,255,218,0.4) !important;
+            box-shadow: none !important;
         }
 
         /* ============================================================
