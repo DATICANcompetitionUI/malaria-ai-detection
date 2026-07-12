@@ -840,7 +840,7 @@ def render_dashboard():
     st.markdown("<br>", unsafe_allow_html=True)
     _, cta_col, _ = st.columns([1, 1, 1])
     with cta_col:
-        if st.button("🧫 Start New Diagnosis", use_container_width=True, 
+        if st.button("⚕️ Start New Diagnosis", use_container_width=True, 
                      type="primary"):
             st.session_state["current_page"] = "diagnosis"
             st.rerun()
@@ -1270,8 +1270,8 @@ def main():
 
         # CHANGE 2 — Remove reports page from navigation options
         nav_options = {
-            "dashboard": "🏠 Clinical Dashboard",
-            "diagnosis": "🧫 New Diagnosis",
+            "dashboard": "📊 Clinical Dashboard",
+            "diagnosis": "⚕️ New Diagnosis",
             "settings": "⚙️ Settings",
         }
 
@@ -2174,7 +2174,7 @@ def main():
                                     "Trophozoite stage. "
                                     "Larger, irregular shape filling more of the "
                                     "RBC. Often shows amoeboid cytoplasm. "
-                                    "Active feeding stage — indicates established "
+                                    "Active feeding stage: indicates established "
                                     "infection."
                                 ),
                                 "schizont": (
@@ -2346,9 +2346,9 @@ def main():
                                 )
                         else:
                             if result.total_parasites == 0:
-                                scan_status = "Negative — No parasites detected"
+                                scan_status = "Negative: No parasites detected"
                             elif uncertain_count > 0 and result.total_parasites == uncertain_count:
-                                scan_status = "Needs Review — Uncertain detections only"
+                                scan_status = "Needs Review: Uncertain detections only"
                             else:
                                 scan_status = (
                                     f"Positive — {result.total_parasites} parasite(s) detected"
