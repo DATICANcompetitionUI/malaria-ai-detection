@@ -1,46 +1,210 @@
-# 🔬 Malaria Parasite Detection System
+# 🦠 PlasmoID AI
 
-> **AI-powered object detection of *Plasmodium vivax* parasites in blood smear microscopy images using YOLOv8: built for the NACOS UI × DATICAN 2026 AI-in-Medicine Competition.**
+### AI-Assisted Clinical Decision Support for Malaria Microscopy
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![YOLOv8](https://img.shields.io/badge/YOLO-v8-brightgreen.svg)](https://docs.ultralytics.com/) [![Streamlit](https://img.shields.io/badge/Streamlit-1.40-red.svg)](https://streamlit.io) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?logo=streamlit)](https://malaria-ai-detection.streamlit.app/) [![Competition](https://img.shields.io/badge/NACOS%20UI%20×%20DATICAN-2026-blueviolet)](https://datican.org)
+PlasmoID AI is an automated clinical decision-support system designed to assist microscopists in detecting, localising, and classifying malaria parasites in Giemsa-stained thin blood smear microscopy images. By identifying four key life-cycle stages of *Plasmodium vivax* alongside healthy red blood cells, the system estimates parasitemia percentages and determines severity levels according to World Health Organization (WHO) clinical thresholds. Built for low-resource healthcare environments, PlasmoID AI combines CPU-optimized YOLOv8n inference with automated quality control checks and a clinician-in-the-loop verification panel.
+
+---
+
+<!-- Replace competition badge with Research Project badge after competition -->
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![YOLOv8](https://img.shields.io/badge/YOLO-v8-brightgreen.svg)](https://docs.ultralytics.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.40-red.svg)](https://streamlit.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?logo=streamlit)](https://malaria-ai-detection.streamlit.app/)
+[![Competition](https://img.shields.io/badge/NACOS%20UI%20×%20DATICAN-2026-blueviolet)](https://datican.org)
+[![CPU Optimized](https://img.shields.io/badge/CPU-Optimized-success)](https://github.com/King-Gabby/malaria-ai-detection)
 
 ---
 
 ## 📋 Table of Contents
 
-- [Project Overview](#-project-overview)
+- [Highlights](#-highlights)
+- [Why PlasmoID AI?](#-why-plasmoid-ai)
+- [Clinical Workflow](#-clinical-workflow)
+- [Architecture](#-architecture)
+- [🎥 Demo](#-demo)
+- [Application Screenshots](#-application-screenshots)
+- [Features](#-features)
+- [Technology Stack](#-technology-stack)
 - [Problem Statement](#-problem-statement)
 - [Key Design Decisions](#-key-design-decisions)
 - [Dataset](#-dataset)
-- [Architecture](#-architecture)
-- [Clinical Workflow Features](#-clinical-workflow-features)
+- [Internal Data Pipeline](#-internal-data-pipeline)
 - [Setup & Installation](#-setup--installation)
 - [Pipeline Walkthrough](#-pipeline-walkthrough)
 - [Training](#-training)
 - [Evaluation](#-evaluation)
 - [Interactive Demo](#-interactive-demo)
 - [Results](#-results)
-- [Project Structure](#-project-structure)
+- [Repository Structure](#-repository-structure)
+- [Future Work](#-future-work)
 - [Team](#-team)
 - [License](#-license)
 - [Acknowledgements](#-acknowledgements)
 
 ---
 
-## 🎯 Project Overview
+## ✨ Highlights
 
-This system automates the detection and classification of malaria parasites in Giemsa-stained thin blood smear microscopy images. It identifies four life-cycle stages of *Plasmodium vivax*: ring, trophozoite, schizont, and gametocyte, alongside healthy red blood cells, providing:
+* **Automated Stage Detection**: Detects malaria parasites and classifies them into four key life-cycle stages (*ring*, *trophozoite*, *schizont*, and *gametocyte*) plus healthy red blood cells.
+* **Human-in-the-Loop Verification**: Surfaces borderline detections (35–45% confidence) for clinical accept/reject review to protect clinical safety.
+* **WHO Severity Classification**: Calculates estimated parasitemia percentages and classifies infection severity into Low (<1%), Moderate (1-5%), or Severe (>5%) categories.
+* **CPU-Only Deployment**: Optimized to execute on standard consumer-grade CPU hardware (~140ms/image) without requiring expensive GPU infrastructure.
+* **Clinical PDF & CSV Reports**: Exports verified diagnostics including patient demographics, morphologic observations, and WHO-aligned recommendations.
+* **Slide Quality Assessment**: Employs classical computer vision checks (blur, illumination, and exposure) before running model inference to ensure diagnostic reliability.
+* **Resource-Friendly Design**: Tailored specifically for healthcare environments with limited connectivity and hardware access.
 
-- **Parasite localisation** with bounding boxes and confidence scores
-- **Parasitemia estimation** (% infected cells) for severity assessment, following WHO treatment guideline thresholds
-- **Slide quality assessment** — blur, illumination, and exposure checks before inference runs, preventing garbage-in/garbage-out failures
-- **Uncertainty flagging** — detections in the 35–45% confidence range are flagged for mandatory human review rather than auto-classified
-- **Human-in-the-loop verification** — clinicians can accept or reject flagged detections; parasitemia and severity recalculate in real time
-- **Batch processing mode** for analysing multiple slides at once
-- **Clinical-grade PDF reports** with patient demographics, stage-specific clinical notes, and WHO-aligned recommendations
-- **Interactive web demo** accessible from any browser, no GPU required
+---
 
-Built for the **NACOS UI × DATICAN 2026 AI-in-Medicine Competition** with a focus on practical clinical applicability, responsible AI deployment, and real-world suitability for resource-limited African healthcare settings.
+## 🔬 Why PlasmoID AI?
+
+Unlike typical computer vision demonstrators that stop at drawing boxes on raw images, PlasmoID AI is engineered as an end-to-end clinical decision-support system. It integrates key operational safety nets and workflow layers crucial for real-world laboratory workflows: slide quality assessment, automated parasite localisation, human-in-the-loop verification, parasitemia estimation, WHO severity classification, and clinical report generation. 
+
+By design, it does not replace the microscopist; rather, it acts as an intelligent assistant. Detections falling within the model's zone of uncertainty (35–45% confidence) are flagged for clinician review, allowing humans to guide the AI when predictions are borderline. The final outputs—including the severity metrics, parasitemia percentage counts, and downloadable reports—dynamically adjust based on these clinical decisions. This makes PlasmoID AI highly applicable to resource-limited clinics where diagnostic reliability, speed, and safety are of paramount concern.
+
+---
+
+## 🔄 Clinical Workflow
+
+Every microscopy field submitted to the application is processed through a structured diagnostic pipeline:
+
+```text
+       Upload Blood Smear
+                │
+                ▼
+     Slide Quality Assessment
+                │
+                ▼
+         YOLOv8 Detection
+                │
+                ▼
+        Human Verification
+                │
+                ▼
+      Parasitemia Estimation
+                │
+                ▼
+        WHO Classification
+                │
+                ▼
+          Clinical Report
+```
+
+### Detailed Workflow Walkthrough
+
+* **Patient Intake & Demographics**: The clinician registers optional session-based patient demographics (Name, Age, Sex, facility details) which automatically generates a unique Report Number (e.g. `RPT-20260628-68579`) and Study ID (e.g. `STD-BD101`).
+* **Slide Quality Assessment**: Before running machine learning models, classical computer vision checks compute blur (Laplacian variance), illumination, and exposure levels to ensure the image meets microscopy requirements.
+* **YOLOv8n Parasite Detection**: The model predicts bounding boxes, confidence values, and cell types across 5 classes (healthy RBCs, rings, trophozoites, schizonts, and gametocytes).
+* **Uncertainty Flagging**: Detections with confidence values falling within the 35–45% range are marked as inconclusive and flagged for clinicians.
+* **Human-in-the-Loop Review**: Zoomed crops of flagged objects are displayed for confirmation. The user clicks **Accept** (counts as parasite) or **Reject** (reclassified or excluded). Unreviewed items default to accepted for safety.
+* **WHO Classification & Reporting**: A clinical summary, severity, and stage indications are compiled into a print-ready PDF and a downloadable CSV of cell counts.
+
+---
+
+## 🏗 Architecture
+
+The following diagram outlines the high-level diagnostic data flow and processing steps within PlasmoID AI:
+
+```text
+ Blood Smear Image
+         │
+         ▼
+ Slide Quality Assessment
+         │
+         ▼
+    YOLOv8n Detection
+         │
+         ▼
+ Human Verification
+         │
+         ▼
+ Parasitemia Estimation
+         │
+         ▼
+ WHO Classification
+         │
+         ▼
+ Clinical PDF / CSV Report
+```
+
+---
+
+## 🎥 Demo
+
+A short demonstration GIF showcasing the complete workflow will be added after the competition submission.
+
+The demo will include:
+
+- Splash screen
+- Dashboard
+- Image upload
+- Parasite detection
+- Human verification
+- WHO classification
+- PDF report generation
+
+---
+
+## 📷 Application Screenshots
+
+### Splash Screen
+> Application startup and system initialization.
+
+### Clinical Dashboard
+> System overview, workflow, and model capabilities.
+
+### Diagnosis
+> Upload, slide quality assessment, and cell detection interface.
+
+### Human Verification
+> Cropped cell crops and accept/reject verification cards.
+
+### Clinical Report
+> Downloadable PDF laboratory report with patient details and WHO classification.
+
+---
+
+## 🛠 Features
+
+### Clinical
+* **WHO-Aligned Severity**: Maps estimated parasitemia percentages directly to WHO treatment guidelines.
+* **Stage-Specific Interpretations**: Generates custom warnings and diagnostic explanations depending on the life-cycle stages observed.
+* **Demographic Association**: Links diagnostic results with basic clinician-entered patient intake details.
+
+### AI Detection
+* **Real-Time YOLOv8**: Processes Giemsa-stained thin blood smear fields on standard CPU hardware in ~140ms.
+* **Interactive Adjustments**: Allows lab technicians to configure confidence (sensitivity) and intersection-over-union (NMS) thresholds.
+
+### Reports
+* **Clinician-Verified PDF**: Laboratory-grade report detailing cell tallies, morphologic annotations, patient intake, and disclaimers.
+* **Raw CSV Data Export**: Downloads tabular detection coordinates, confidence bounds, and stage classes.
+* **Annotated Smear Save**: Exports high-resolution diagnostic images showing predicted bounding boxes.
+
+### Verification
+* **Crop Gallery**: Collects close-ups of detected cells, automatically sorting inconclusive detections to the top.
+* **Live Recalculation**: Adjusting accept/reject states immediately recalculates cell ratios and severity categories.
+
+### Quality Control
+* **Laplacian Variance Focus Analysis**: Evaluates focus sharpness to prevent scanning highly blurred fields.
+* **Luminance Profiling**: Blocks or warns on under-illuminated or overexposed fields.
+
+### Batch Processing
+* **Multi-Slide Upload**: Analyzes directories of images sequentially.
+* **Consolidated Data Summaries**: Generates multi-slide results tables with download options.
+
+---
+
+## 💻 Technology Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Frontend** | Streamlit 1.40 | Web interface and responsive dashboard |
+| **Model** | YOLOv8n | Real-time object detection and classification |
+| **CV** | OpenCV | Image decoding, color-space mapping, and quality checks |
+| **Visualization** | Plotly | Dynamic diagnostic graphs and confidence gauges |
+| **Reports** | FPDF2 | Lab-grade PDF report rendering |
+| **Language** | Python 3.10+ | Core application logic and execution engine |
 
 ---
 
@@ -55,7 +219,7 @@ Malaria kills over 600,000 people annually (WHO, 2023). Gold-standard diagnosis 
 | Shortage of trained microscopists | Limited access to diagnosis |
 | Multiple parasite stages | Requires expert-level morphology knowledge |
 
-**Our solution:** An AI system that detects and classifies parasites in seconds, providing consistent, explainable results to *assist* and not to replace — human microscopists. Where the model is uncertain, it says so explicitly rather than forcing a confident-looking but unreliable classification.
+**Our solution:** An AI system that detects and classifies parasites in seconds, providing consistent, explainable results to *assist* — and not to replace — human microscopists. Where the model is uncertain, it says so explicitly rather than forcing a confident-looking but unreliable classification.
 
 ---
 
@@ -77,7 +241,7 @@ Malaria kills over 600,000 people annually (WHO, 2023). Gold-standard diagnosis 
 
 ## 📊 Dataset
 
-**[BBBC041 — Malaria Bounding Boxes](https://bbbc.broadinstitute.org/BBBC041)** from the Broad Bioimage Benchmark Collection, accessed via [Kaggle](https://www.kaggle.com/datasets/khanhtq2101/bbbc041-detection).
+We use the **[BBBC041 — Malaria Bounding Boxes](https://bbbc.broadinstitute.org/BBBC041)** dataset from the Broad Bioimage Benchmark Collection, accessed via [Kaggle](https://www.kaggle.com/datasets/khanhtq2101/bbbc041-detection).
 
 | Property | Value |
 |----------|-------|
@@ -111,137 +275,18 @@ During development we discovered the Kaggle-hosted BBBC041 mirror provides multi
 | `labels_without_leukocyte/` | Normalised (0–1) | Single-class (ring only) |
 | `whole_pipeline_annotation_5class/` | Raw pixel coordinates | Full 5-class |
 
-None of the provided variants combined full 5-class annotations with correctly normalised coordinates. We wrote `normalize_labels.py` to convert the 5-class pixel-coordinate annotations into YOLO's expected normalised format using each image's known 1600×1200 dimensions. Training on un-normalised coordinates causes YOLOv8 to silently reject every image as "corrupt" with a misleading error message — a failure mode that cost real debugging time before the root cause was identified.
+None of the provided annotation variants combined full 5-class annotations with correctly normalised coordinates. We wrote `normalize_labels.py` to convert the 5-class pixel-coordinate annotations into YOLO's expected normalised format using each image's known 1600×1200 dimensions. Training on un-normalised coordinates causes YOLOv8 to silently reject every image as "corrupt" with a misleading error message — a failure mode that cost real debugging time before the root cause was identified.
 
 ---
 
-## 🏗 Architecture
+## ⚙️ Internal Data Pipeline
 
-### Model Pipeline
+```text
+normalize_labels.py        Bounding Boxes             YOLO Training
+ (Pixel Coordinates) ────▶ (Normalised Labels) ────▶ (5-Class Model)
+```
 
-┌──────────────┐    ┌──────────────────┐    ┌─────────────┐    ┌─────────────┐
-│  BBBC041     │    │  normalize_      │    │  YOLOv8n    │    │  Streamlit  │
-│  Raw Images  │───▶│  labels.py       │───▶│  Training   │───▶│  Clinical   │
-│  + Bounding  │    │  (pixel coords   │    │  50 epochs  │    │  Workflow   │
-│  Box Annots  │    │  → YOLO 0–1)    │    │  CPU-only   │    │  + Reports  │
-└──────────────┘    └──────────────────┘    └─────────────┘    └─────────────┘
-
-### Clinical Inference Workflow
-
-Every image uploaded to the app passes through this pipeline in order:
-
-📋 Patient Intake
-Report number, study ID, demographics (session-based, optional)
-│
-▼
-🔍 Slide Quality Assessment
-Blur (Laplacian variance) · Brightness · Overexposure
-Errors block inference · Warnings allow proceeding with advisory
-│
-▼
-🧠 YOLOv8n Detection
-5-class parasite localisation with bounding boxes
-Ring · Trophozoite · Schizont · Gametocyte · Red Blood Cell
-│
-▼
-⚠️  Uncertainty Flagging
-Detections at 35–45% confidence → flagged as Inconclusive
-Yellow bounding box · Requires clinician review
-│
-▼
-👨⚕️ Clinician Verification (Human-in-the-Loop)
-Accept or Reject each flagged detection
-Parasitemia and severity recalculate in real time
-│
-▼
-📊 Parasitemia Estimation
-Infected cells ÷ total cells × 100
-Conservative default: unreviewed detections counted as accepted
-│
-▼
-🏥 WHO Severity Classification
-< 1% → Low · 1–5% → Moderate · > 5% → Severe
-│
-▼
-📄 Clinical PDF Report
-Patient info · Clinical interpretation · Stage-specific notes
-Numbered recommendations · Annotated image, disclaimer
-
-**Why YOLO over classification?**
-
-- Detection localises individual parasites and counts them — essential for parasitemia calculation
-- Strong small-object detection (parasites are tiny relative to the field of view)
-- One-stage detector, simpler deployment than two-stage pipelines
-- Real-time inference speed suitable for clinical screening workflows
-
----
-
-## 🩺 Clinical Workflow Features
-
-Beyond detection, the system implements a full clinical decision-support workflow designed around real laboratory practice.
-
-### Patient Intake
-
-Optional session-based patient information form — name, age, sex, sample ID, requesting clinician, and health facility. Each analysis auto-generates a unique **Report Number** (e.g. `RPT-20260628-68579`) and **Study ID** (e.g. `STD-BD101`). No data is persisted beyond the browser session; nothing is written to a server or database.
-
-### Slide Quality Assessment
-
-Before inference runs, the system checks the uploaded image for common microscopy quality issues using classical computer vision — no ML model involved. Thresholds are calibrated against empirical analysis of 30 actual BBBC041 test images:
-
-| Check | Method | Error Threshold | Warning Threshold |
-|-------|--------|----------------|-------------------|
-| Blur | Laplacian variance | < 2.0 | < 2.7 |
-| Darkness | Mean pixel intensity | < 100/255 | < 130/255 |
-| Overexposure | Saturated pixel % | > 25% | > 15% |
-
-Severe issues block analysis with specific actionable guidance (refocus the microscope, adjust illumination). Moderate issues show advisory warnings that allow the user to proceed with caution. A clean pass shows a positive confirmation before analysis begins.
-
-### 👨🏽‍⚕️ Human-in-the-Loop Verification
-
-Detections with confidence between **35–45%** are flagged as *Inconclusive* and presented as individual zoomed crops with **Accept** / **Reject** controls. All clinical outputs recalculate in real time:
-
-Uncertain detection flagged
-
-↓
-
-Clinician reviews zoomed crop + stage-specific morphology notes
-
-↓
-
-Accept → counted as confirmed parasite
-
-Reject → excluded from parasite count
-
-↓
-
-Parasitemia, severity, and recommendation recalculate immediately
-
-Unreviewed uncertain detections default to *accepted* (conservative — in clinical screening, missing a real infection is more dangerous than a false positive a microscopist can dismiss).
-
-### 📄 Clinical PDF Report
-
-Every analysis generates a downloadable report structured like a real laboratory document:
-
-- **Patient information table** — demographics, sample ID, clinician, facility, report number, study ID, timestamp
-- **Clinical interpretation paragraph** — dynamically generated based on parasitemia level and dominant stage
-- **Stage-specific clinical notes** — explains what each detected stage means clinically (ring = early infection; schizont in peripheral blood = higher severity concern; gametocyte = epidemiological transmission risk)
-- **Numbered recommendation checklist** — WHO-aligned treatment guidance
-- **Annotated image** with all AI-proposed detections
-- **Disclaimer** — explicit statement that this is AI-assisted screening requiring confirmation by a qualified microscopist
-
-When human-in-the-loop verification has occurred, the report is clearly labelled **[Clinician-Verified]** and the detection table reflects reviewed counts, not raw model output.
-
-### 📊 Batch Processing
-
-Analyse multiple slides in a single session. A progress bar updates as each image is processed. Results export as a downloadable CSV summary with per-slide parasite count, uncertain detections, parasitemia percentage, and positive/negative status.
-
-### 📈 Detailed Analysis Charts
-
-An expandable section below each analysis result contains:
-
-- **Confidence distribution bar chart** — high confidence vs uncertain vs RBC detections
-- **Per-class parasite breakdown** — horizontal bar chart
-- **Parasitemia gauge** — semicircular indicator with WHO threshold markers at 1% (low) and 5% (severe)
+This pipeline converts raw BBBC041 bounding box coordinates into the 0-1 range expected by YOLOv8, ensuring images are read correctly during training.
 
 ---
 
@@ -367,13 +412,15 @@ python -m src.evaluation.evaluate \
 **Outputs** (saved to `results/`):
 
 - `metrics.json` — mAP, precision, recall (overall + per-class)
-- `confusion_matrix.png` — Detection confusion matrix heatmap
-- `per_class_metrics.png` — Bar chart of AP50, precision, recall by class
-- `summary_card.png` — Quick-reference metrics card
+- `confusion_matrix.png` — Heatmap confusion matrix of predicted annotations
+- `per_class_metrics.png` — Metrics comparison (precision, recall, AP50) bar chart
+- `summary_card.png` — Compiled summary image
 
 ---
 
 ## 🖥 Interactive Demo
+
+To execute the Streamlit application on local machines:
 
 ```bash
 streamlit run app/streamlit_app.py
@@ -381,28 +428,11 @@ streamlit run app/streamlit_app.py
 
 **Live version:** [malaria-ai-detection.streamlit.app](https://malaria-ai-detection.streamlit.app/)
 
-**Features:**
-
-- 🩺 **Patient Intake** — optional form with auto-generated report number and study ID, session-based only
-- 🔍 **Slide Quality Check** — automated blur, brightness, and exposure assessment before inference runs
-- 📤 **Image Upload** — upload a blood smear image or try one of three bundled sample images
-- 🎯 **AI Detection** — real-time YOLOv8 parasite detection with adjustable sensitivity and NMS thresholds
-- ⚠️ **Uncertainty Flagging** — borderline detections highlighted in yellow for clinician review
-- ✅ **Human Verification** — accept or reject uncertain detections; parasitemia recalculates immediately
-- 📦 **Batch Processing** — analyse multiple slides at once, export results as CSV
-- 🔬 **Detection Gallery** — zoomed crops of each detected parasite for visual verification
-- 📊 **Parasitemia Estimation** — WHO-guideline severity classification with colour-coded thresholds
-- 📈 **Detailed Analysis** — confidence distribution chart, per-class breakdown, parasitemia gauge
-- 🩺 **AI Screening Summary** — dynamic clinical recommendation based on findings
-- 📄 **Clinical Reports** — PDF (patient info, interpretation, stage notes, recommendations), CSV, annotated image
-- 🎛 **RBC Toggle** — hide healthy red blood cells for cleaner parasite-only view
-- ⏱️ **Inference Timing** — live speed measurement displayed per analysis
-
 ---
 
-## 📊 Results
+## 📈 Results
 
-Evaluated on the BBBC041 test set using the final trained model (YOLOv8n, 50 epochs, 5-class detection, CPU-only training).
+This section summarizes model performance evaluations computed against the designated BBBC041 test partition. The final validation weights were produced using a YOLOv8n network model trained for 50 epochs on the normalized BBBC041 training partition. The optimization run was executed entirely inside a CPU-only environment. The resulting metrics represent classification and localization accuracies achieved at ~140ms per image inference speed.
 
 | Metric | Value |
 |--------|-------|
@@ -422,7 +452,7 @@ Evaluated on the BBBC041 test set using the final trained model (YOLOv8n, 50 epo
 | Gametocyte | 34.8% | 37.7% | 42.1% | Only 125 training examples |
 | Red Blood Cell | 99.3% | 95.9% | 99.4% | Near-perfect detection |
 
-### Notes
+### Discussion
 
 - Weaker performance on schizont and gametocyte is directly attributable to dataset imbalance: 125–164 annotations versus 69,452 for red blood cells. This is a known characteristic of BBBC041, not a model architecture limitation.
 - We address this operationally: uncertainty flagging surfaces low-confidence detections of rare stages for human review; human-in-the-loop verification allows clinicians to confirm or reject borderline findings before results are finalised.
@@ -437,54 +467,74 @@ Evaluated on the BBBC041 test set using the final trained model (YOLOv8n, 50 epo
 
 ---
 
-## 📁 Project Structure
+## 📁 Repository Structure
 
+```text
 malaria-ai-detection/
-├── app/
+├── 📂 app/
 │   ├── streamlit_app.py            # Interactive web demo + full clinical workflow
 │   │                               # (patient intake, quality check, verification, reports, charts)
-│   └── samples/                    # Bundled sample images for the demo
-├── src/
-│   ├── data/
+│   └── 📁 samples/                  # Bundled sample images for the demo
+├── 📂 src/
+│   ├── 📁 data/
 │   │   ├── download_dataset.py     # Dataset download utilities
 │   │   └── convert_annotations.py  # BBBC041 JSON → YOLO .txt
-│   ├── preprocessing/
+│   ├── 📁 preprocessing/
 │   │   └── preprocess.py           # Stain normalisation, CLAHE, resize
-│   ├── training/
+│   ├── 📁 training/
 │   │   └── train.py                # YOLOv8 training script, --resume support
-│   ├── evaluation/
+│   ├── 📁 evaluation/
 │   │   └── evaluate.py             # Metrics, confusion matrix, plots
-│   └── inference/
+│   └── 📁 inference/
 │       └── predict.py              # Inference API, uncertainty tiers, parasitemia calculation, timing
-├── models/
+├── 📂 models/
 │   └── best.pt                     # Trained weights (committed for Streamlit Cloud deployment, 6.2MB stripped)
-├── configs/
+├── 📂 configs/
 │   └── malaria.yaml                # YOLO dataset config (5 classes)
 ├── normalize_labels.py             # Converts BBBC041 pixel-coordinate annotations to normalised YOLO format
 │                                   # (essential — see Dataset section)
-├── results/                        # Evaluation outputs
+├── 📂 results/                      # Evaluation outputs
 │   ├── metrics.json
 │   ├── confusion_matrix.png
 │   ├── per_class_metrics.png
 │   └── summary_card.png
-├── notebooks/                      # EDA, experimentation
-├── tests/
+├── 📂 notebooks/                    # EDA, experimentation
+├── 📂 tests/
 │   ├── test_convert_annotations.py
 │   └── test_preprocess.py
 ├── requirements.txt                # Pinned dependencies
 ├── runtime.txt                     # Python 3.11 (Streamlit Cloud)
 ├── README.md
 └── .gitignore
+```
+
+---
+
+## 🚀 Future Work
+
+### Clinical
+* **Multi-species malaria detection**: Support diagnosis of *Plasmodium falciparum*, *Plasmodium malariae*, and *Plasmodium ovale* alongside *Plasmodium vivax*.
+* **Hospital integration**: Integrate predictions with electronic medical record platforms.
+
+### Deployment
+* **Mobile deployment**: Adapt model parameters for edge execution on diagnostic mobile devices.
+* **Edge inference configurations**: Optimize weights for execution on micro-processing units inside resource-limited clinics.
+
+### Research
+* **Expanded datasets**: Train models with clinical fields gathered across multiple independent regions in Sub-Saharan Africa.
+
+### Infrastructure
+* **REST API**: Develop a lightweight inference API to serve remote clinics via low-bandwidth messaging channels.
 
 ---
 
 ## 👥 Team
 
-| Name | Role |
-|------|------|
-| Gabriel Akoleaje | Project Lead / Model Training / Data Pipeline / Inference |
-| Treasure Olajide | Streamlit UI / Demo / Clinical Workflow |
-| Sodiq Gbadegesin | Evaluation / Documentation / Testing |
+| Name | Role | Links |
+|------|------|-------|
+| Gabriel Akoleaje | Project Lead / Model Training / Data Pipeline / Inference | GitHub: Coming Soon <br> LinkedIn: Coming Soon |
+| Treasure Olajide | Streamlit UI / Demo / Clinical Workflow | GitHub: Coming Soon <br> LinkedIn: Coming Soon |
+| Sodiq Gbadegesin | Evaluation / Documentation / Testing | GitHub: Coming Soon <br> LinkedIn: Coming Soon |
 
 **Competition:** NACOS UI × DATICAN 2026 — Undergraduate Students' Competition in the Application of Artificial Intelligence in Medicine, University of Ibadan in partnership with DATICAN.
 
