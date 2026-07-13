@@ -714,8 +714,8 @@ def show_splash_screen():  #CHANGED
     <div class="splash-overlay">
         <div class="splash-card">
             <div class="logo-circle">🔬</div>
-            <h1 class="splash-title">PlasmoID AI</h1>
-            <p class="splash-subtitle">AI Assisted Clinical Support for Malaria Microscopy</p>
+            <h1 class="splash-title">🔬 PlasmoID AI</h1>
+            <p class="splash-subtitle">AI Assisted Clinical Assistant for Malaria Microscopy</p>
             <div class="splash-status">
                 <span class="status-dot"></span>
                 <span id="status-text">Loading detection model...</span>
@@ -766,7 +766,7 @@ def render_dashboard():
                 border-radius: 14px; padding: 1.2rem 1.8rem; margin-bottom: 1rem;
                 border: 1px solid rgba(255,255,255,0.12); text-align: center;">
         <h2 style="color: #FFFFFF; margin-bottom: 0.2rem; font-size: 1.8rem;">
-            PlasmoID AI
+           🔬 PlasmoID AI
         </h2>
         <p style="color: #D8DEE9; margin: 0 0 0.3rem 0; font-size: 0.95rem;">
             AI-Assisted Clinical Decision Support
@@ -902,12 +902,7 @@ def render_dashboard():
     st.markdown("---")
     # Relocated disclaimers using global contrast palette
     st.warning(
-        "Note: Research use only. Not a certified "
-        "medical diagnostic device. Always confirm "
-        "with a qualified microscopist."
-    )
-    st.caption(
-        "⚠️ For research and decision support. Not intended as a "
+        "Disclaimer: For research use and decision support only. Not intended as a "
         "standalone diagnostic tool. All findings require confirmation "
         "by a qualified microscopist."
     )
@@ -1575,7 +1570,7 @@ def main():
                          border-radius: 20px; font-size: 0.75rem; font-weight: 600;
                          letter-spacing: 0.05em; text-transform: uppercase;
                          margin-bottom: 0.5rem; display: inline-block;">
-                AI-Assisted Screening
+                AI Clinical Assistant
             </span>
             <h1>🔬 PlasmoID AI</h1>
             <p>Detects and classifies <em>malaria</em> parasite stages from microscopy images in seconds</p>
@@ -1848,7 +1843,7 @@ def main():
 
             # CHANGED: Added How It Works section
             st.markdown("---")
-            with st.expander("⚙️ How It Works", expanded=False):
+            with st.expander("🤔 How It Works: ", expanded=False):
                 how_col1, how_col2, how_col3 = st.columns(3)
             with how_col1:
                 st.markdown("#### 1️⃣ Upload")
@@ -2301,7 +2296,7 @@ def main():
                 # ── FEATURE 2 — Human-in-the-loop verification ───────────────────────────
                 if uncertain_count > 0:
                     st.markdown("---")
-                    st.markdown("### 🔬 Clinician Verification Required")
+                    st.markdown("### 👤 Clinician Verification Required")
                     st.caption(
                         f"{uncertain_count} detection(s) have confidence between "
                         f"35% and 45% and require your review. Accept or reject "
@@ -2553,11 +2548,11 @@ def main():
                         st.session_state["verified_result"] = verified
 
                     # Keep the educational expander below for reference
-                    with st.expander("ℹ️ About uncertainty flagging"):
+                    with st.expander("ℹ️ About uncertainty flagging:"):
                         st.markdown(
                             "Detections with confidence between **35%** and **45%** "
                             "are flagged for clinician review. This range represents "
-                            "the model's zone of genuine uncertainty — confident "
+                            "the model's zone of genuine uncertainty: confident "
                             "enough to surface but not confident enough to "
                             "auto-classify. Your accept/reject decisions directly "
                             "update the parasitemia calculation above."
