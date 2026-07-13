@@ -779,7 +779,7 @@ def render_dashboard():
     
     _, cta_col, _ = st.columns([0.8, 1.4, 0.8])
     with cta_col:
-        if st.button("⌛️ Begin New Diagnosis", use_container_width=True, 
+        if st.button(" Start Clinical Diagnosis ", use_container_width=True, 
                      type="primary"):
             st.session_state["current_page"] = "diagnosis"
             st.rerun()
@@ -1489,6 +1489,35 @@ def main():
             border-top: 1px solid #1a1a2e;
             margin-top: 3rem;
             letter-spacing: 0.03em;
+        }
+
+        /* Fix 3: Main content area CTA button contrast and color override */
+        section.main div[data-testid="stButton"] > button[kind="primary"] {
+            background: linear-gradient(135deg, #e94560, #c23152) !important;
+            background-image: linear-gradient(135deg, #e94560, #c23152) !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 0.85rem 2rem !important;
+            font-weight: 700 !important;
+            font-size: 1.05rem !important;
+            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.35) !important;
+        }
+
+        section.main div[data-testid="stButton"] > button[kind="primary"] p,
+        section.main div[data-testid="stButton"] > button[kind="primary"] div {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+        }
+
+        section.main div[data-testid="stButton"] > button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #f05a77, #d43b60) !important;
+            background-image: linear-gradient(135deg, #f05a77, #d43b60) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.45) !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
         }
     </style>
     """, unsafe_allow_html=True)
