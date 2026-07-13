@@ -2141,8 +2141,8 @@ def main():
 
                 # 5. Recommendation
                 if uncertain_count > 0:
-                    rec_str = f"Microscopy review strongly advised — {uncertain_count} detection(s) flagged for human verification."
-                    rec_style = "background-color: #ffd214; color: #1a1a2e; border-left: 5px solid #d4af37;"
+                    rec_str = f"Microscopy review strongly advised: {uncertain_count} detection(s) flagged for human verification."
+                    rec_style = "background-color: #e94560; color: #1a1a2e; border-left: 5px solid #d4af37;"
                     rec_icon = "⚠️"
                 elif result.parasitemia_pct == 0:
                     rec_str = "No parasites detected. Routine confirmation recommended per standard clinical protocol."
