@@ -532,9 +532,9 @@ malaria-ai-detection/
 
 | Name | Role | Links |
 |------|------|-------|
-| Gabriel Akoleaje | Project Lead / Model Training / Data Pipeline / Inference | GitHub: Coming Soon <br> LinkedIn: Coming Soon |
-| Treasure Olajide | Streamlit UI / Demo / Clinical Workflow | GitHub: Coming Soon <br> LinkedIn: Coming Soon |
-| Sodiq Gbadegesin | Evaluation / Documentation / Testing | GitHub: Coming Soon <br> LinkedIn: Coming Soon |
+| Gabriel Akoleaje | Project Lead / Model Training / Data Pipeline / Inference | GitHub: https://github.com/King-Gabby <br> LinkedIn: https://www.linkedin.com/in/gabriel-akoleaje/ |
+| Treasure Olajide | Streamlit UI / Demo / Clinical Workflow | GitHub: https://github.com/Strikertee <br> LinkedIn: https://www.linkedin.com/in/treasure-olajide-9a4963419/ |
+| Sodiq Gbadegesin | Evaluation / Documentation / Testing | GitHub: Null <br> LinkedIn: Null |
 
 **Competition:** NACOS UI × DATICAN 2026 — Undergraduate Students' Competition in the Application of Artificial Intelligence in Medicine, University of Ibadan in partnership with DATICAN.
 
