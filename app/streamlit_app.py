@@ -777,9 +777,9 @@ def render_dashboard():
     </div>
     """, unsafe_allow_html=True)
     
-    _, cta_col, _ = st.columns([1, 1.2, 1])
+    _, cta_col, _ = st.columns([0.8, 1.4, 0.8])
     with cta_col:
-        if st.button("🧫 Begin New Diagnosis", use_container_width=True, 
+        if st.button("⌛️ Begin New Diagnosis", use_container_width=True, 
                      type="primary"):
             st.session_state["current_page"] = "diagnosis"
             st.rerun()
@@ -921,6 +921,15 @@ def main():
         layout="wide",
         initial_sidebar_state="expanded",
     )
+    # Force dark theme configurations programmatically
+    try:
+        st.config.set_option("theme.base", "dark")
+        st.config.set_option("theme.primaryColor", "#64ffda")
+        st.config.set_option("theme.backgroundColor", "#0d0d1a")
+        st.config.set_option("theme.secondaryBackgroundColor", "#16213e")
+        st.config.set_option("theme.textColor", "#D8DEE9")
+    except Exception:
+        pass
     # ------ SESSION STATE------
     # Track whether we've shown the splash this session
     if "splash_shown" not in st.session_state:
@@ -998,6 +1007,102 @@ def main():
     # CHANGE — CSS Polish
     st.markdown("""
     <style>
+    /* Force dark theme regardless of user/browser preference */
+    html, body, [data-testid="stAppViewContainer"], 
+    [data-testid="stHeader"], [data-testid="stToolbar"],
+    .main, .block-container {
+        background-color: #0d0d1a !important;
+        color: #D8DEE9 !important;
+    }
+    
+    [data-testid="stSidebar"] {
+        background-color: #0d0d1a !important;
+    }
+    
+    [data-testid="stSidebar"] > div {
+        background-color: #0d0d1a !important;
+    }
+    
+    /* Force all headings to white regardless of theme */
+    h1, h2, h3, h4, h5, h6 {
+        color: #FFFFFF !important;
+    }
+    
+    /* Force body text color */
+    p, span, label, div {
+        color: #D8DEE9;
+    }
+    
+    /* Force input fields to dark theme */
+    .stTextInput input, .stNumberInput input, .stTextArea textarea,
+    .stSelectbox > div > div {
+        background-color: #16213e !important;
+        color: #D8DEE9 !important;
+        border-color: rgba(255,255,255,0.12) !important;
+    }
+    
+    /* Force selectbox dropdown menu to dark theme */
+    [data-baseweb="select"] > div {
+        background-color: #16213e !important;
+        color: #D8DEE9 !important;
+    }
+    
+    [data-baseweb="popover"] {
+        background-color: #16213e !important;
+    }
+    
+    [role="listbox"] {
+        background-color: #16213e !important;
+    }
+    
+    [role="option"] {
+        background-color: #16213e !important;
+        color: #D8DEE9 !important;
+    }
+    
+    /* Force file uploader to dark theme */
+    [data-testid="stFileUploader"] {
+        background-color: rgba(255,255,255,0.03) !important;
+        color: #D8DEE9 !important;
+    }
+    
+    [data-testid="stFileUploaderDropzone"] {
+        background-color: rgba(255,255,255,0.03) !important;
+        border-color: rgba(255,255,255,0.12) !important;
+    }
+    
+    /* Force expander to dark theme */
+    [data-testid="stExpander"] {
+        background-color: rgba(255,255,255,0.02) !important;
+        border-color: rgba(255,255,255,0.12) !important;
+    }
+    
+    [data-testid="stExpander"] summary {
+        color: #D8DEE9 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Force dataframe/table to dark theme */
+    [data-testid="stDataFrame"] {
+        background-color: #16213e !important;
+    }
+    
+    /* Force radio buttons and checkboxes to dark theme */
+    [data-testid="stRadio"] label, [data-testid="stCheckbox"] label {
+        color: #D8DEE9 !important;
+    }
+    
+    /* Force metric widgets to dark theme */
+    [data-testid="stMetric"] {
+        background-color: transparent !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #9AA4B2 !important;
+    }
+    [data-testid="stMetricValue"] {
+        color: #FFFFFF !important;
+    }
+
         /* ============================================================
            GLOBAL LAYOUT & SPACING
         ============================================================ */
@@ -1169,6 +1274,44 @@ def main():
             border: 1px solid rgba(100,255,218,0.4) !important;
             box-shadow: none !important;
         }
+
+        /* Main content CTA — Begin New Diagnosis / Analyse Slide — 
+           maximum specificity to override any sidebar bleed */
+        section.main div[data-testid="stButton"] > button[kind="primary"],
+        div[data-testid="stAppViewContainer"] section.main 
+            div[data-testid="stButton"] > button[kind="primary"] {
+            background: linear-gradient(135deg, #e94560, #c23152) !important;
+            background-color: #e94560 !important;
+            background-image: linear-gradient(135deg, #e94560, #c23152) !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 0.85rem 2rem !important;
+            font-weight: 700 !important;
+            font-size: 1.05rem !important;
+            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.35) !important;
+            transition: all 0.25s ease !important;
+        }
+        
+        section.main div[data-testid="stButton"] > button[kind="primary"] p,
+        section.main div[data-testid="stButton"] > button[kind="primary"] span,
+        section.main div[data-testid="stButton"] > button[kind="primary"] div {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+        }
+        
+        section.main div[data-testid="stButton"] > button[kind="primary"]:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 24px rgba(233, 69, 96, 0.5) !important;
+            color: #FFFFFF !important;
+        }
+
+        section.main div[data-testid="stButton"] > button[kind="primary"]:active {
+            transform: translateY(0px) !important;
+            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.35) !important;
+        }
+
 
         /* ============================================================
            SIDEBAR

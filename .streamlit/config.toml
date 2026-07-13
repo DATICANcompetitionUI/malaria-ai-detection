@@ -1,15 +1,15 @@
 [theme]
 base = "dark"
-
 primaryColor = "#64ffda"
-backgroundColor = "#0b1120"
-secondaryBackgroundColor = "#111827"
-textColor = "#f8fafc"
+backgroundColor = "#0d0d1a"
+secondaryBackgroundColor = "#16213e"
+textColor = "#D8DEE9"
 font = "sans serif"
 
 [client]
 toolbarMode = "minimal"
 showSidebarNavigation = false
+
 [server]
 headless = true
 enableCORS = false
