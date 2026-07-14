@@ -3,7 +3,7 @@
 #Install: pip install -r requirements.txt
 
 # ---------- Core ML ----------
-ultralytics-opencv-headless==8.3.40
+ultralytics==8.3.40
 torch==2.2.2
 torchvision==0.17.2
 
@@ -12,6 +12,7 @@ streamlit==1.40.2
 
 
 # ---------- Computer Vision ----------
+opencv-python-headless==4.10.0.84
 Pillow==11.0.0
 
 # ---------- Data / Science ----------
