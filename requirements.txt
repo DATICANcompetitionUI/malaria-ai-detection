@@ -3,12 +3,15 @@
 #Install: pip install -r requirements.txt
 
 # ---------- Core ML ----------
-ultralytics==8.3.40
+ultralytics-opencv-headless==8.3.40
 torch==2.2.2
 torchvision==0.17.2
 
+# ---------- Web App ----------
+streamlit==1.40.2
+
+
 # ---------- Computer Vision ----------
-opencv-python-headless==4.10.0.84
 Pillow==11.0.0
 
 # ---------- Data / Science ----------
@@ -20,9 +23,6 @@ scikit-learn==1.5.2
 
 # ---------- Config ----------
 pyyaml==6.0.2
-
-# ---------- Web App ----------
-streamlit==1.40.2
 
 # ---------- PDF Report Generation ----------
 fpdf2==2.8.2
