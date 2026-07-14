@@ -1,13 +1,11 @@
 #From Team Devions!
-
 #PlasmoID AI — Pinned Dependencies
-
-
 #Install: pip install -r requirements.txt
-
 
 # ---------- Core ML ----------
 ultralytics==8.3.40
+torch==2.2.2
+torchvision==0.17.2
 
 # ---------- Computer Vision ----------
 opencv-python-headless==4.10.0.84
