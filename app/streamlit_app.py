@@ -465,6 +465,42 @@ def strip_emoji_for_pdf(text: str) -> str:
     """
     return text.encode("latin-1", errors="ignore").decode("latin-1").strip()
 
+
+# ---------------------------------------------------------------------------
+# Helper — downscale oversized uploads to prevent OOM on constrained deploys
+# ---------------------------------------------------------------------------
+def _downscale_if_needed(image_bgr: np.ndarray, max_dimension: int = 1600) -> np.ndarray:
+    """Downscale an image if its longest side exceeds max_dimension.
+
+    Uploaded images (especially phone camera photos) can be far
+    larger than needed for inference, consuming excessive memory on
+    memory-constrained deployments. This caps the longest dimension
+    while preserving aspect ratio, using high-quality interpolation
+    for downscaling (INTER_AREA is optimal for shrinking).
+
+    Args:
+        image_bgr: BGR image array from cv2.imdecode or cv2.imread.
+        max_dimension: Maximum allowed size for the longest side.
+                       Default 1600 matches BBBC041 native resolution
+                       (1600x1200) so no quality is lost on standard
+                       microscopy images.
+
+    Returns:
+        The original array unchanged if already within limits,
+        otherwise a proportionally downscaled copy.
+    """
+    h, w = image_bgr.shape[:2]
+    longest_side = max(h, w)
+
+    if longest_side <= max_dimension:
+        return image_bgr
+
+    scale = max_dimension / longest_side
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+
+    return cv2.resize(image_bgr, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
 # ---------------------------------------------------------------------------
 # CHANGED: Helper — classify a single detection's uncertainty tier
 # ---------------------------------------------------------------------------
@@ -1862,6 +1898,7 @@ def main():
                 if uploaded_file is not None:
                     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
                     image_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+                    image_bgr = _downscale_if_needed(image_bgr)  # cap at 1600px — prevents OOM on large uploads
                     image_name = uploaded_file.name
                 else:
                     sample_path = PROJECT_ROOT / st.session_state["sample_image"]
@@ -2726,6 +2763,7 @@ def main():
                         # Decode image
                         file_bytes = np.asarray(bytearray(uploaded.read()), dtype=np.uint8)
                         img_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+                        img_bgr = _downscale_if_needed(img_bgr)  # cap at 1600px — prevents OOM on large uploads
                         patient_id = Path(uploaded.name).stem
 
                         if img_bgr is None:
