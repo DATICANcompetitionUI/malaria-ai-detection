@@ -815,10 +815,14 @@ def render_dashboard():
     
     _, cta_col, _ = st.columns([0.8, 1.4, 0.8])
     with cta_col:
-        if st.button(" Start Clinical Diagnosis ", use_container_width=True, 
-                     type="primary"):
+        # Wrap in a named div so CSS can target ONLY this button without
+        # affecting the "Analyse Slide" or any other primary button.
+        st.markdown('<div class="cta-start-diagnosis">', unsafe_allow_html=True)
+        if st.button("🔬  Start Clinical Diagnosis", use_container_width=True,
+                     type="secondary", key="btn_start_diagnosis"):
             st.session_state["current_page"] = "diagnosis"
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # FIX 5 — Quick Facts: card grid replacing all tables
     st.markdown("### 📋 Quick Facts")
@@ -1273,21 +1277,92 @@ def main():
             box-shadow: 0 2px 8px rgba(233, 69, 96, 0.3) !important;
         }
 
-        /* Primary button (Analyse Blood Smear) */
+        /* ============================================================
+           ANALYSE SLIDE & OTHER PRIMARY BUTTONS (crimson CTA)
+           Scoped to main content; sidebar overrides below keep their
+           own dark-ghost treatment.
+        ============================================================ */
+        /* Generic primary button baseline (Analyse Slide, etc.) */
         .stButton > button[kind="primary"] {
-            background: linear-gradient(135deg, #00c2a8, #009688) !important;
-            color: white !important;
+            background: linear-gradient(135deg, #e94560, #c23152) !important;
+            background-image: linear-gradient(135deg, #e94560, #c23152) !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
             border: none !important;
-            border-radius: 10px !important;
-            padding: 0.7rem 2rem !important;
+            border-radius: 12px !important;
+            padding: 0.85rem 2rem !important;
             font-weight: 700 !important;
-            font-size: 1rem !important;
+            font-size: 1.05rem !important;
             letter-spacing: 0.01em !important;
+            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.35) !important;
             transition: all 0.25s ease !important;
-            box-shadow: 0 2px 8px rgba(0, 194, 168, 0.3) !important;
+        }
+        .stButton > button[kind="primary"] p,
+        .stButton > button[kind="primary"] span,
+        .stButton > button[kind="primary"] div {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+        }
+        .stButton > button[kind="primary"]:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 24px rgba(233, 69, 96, 0.5) !important;
+        }
+        .stButton > button[kind="primary"]:active {
+            transform: translateY(0px) !important;
+            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.35) !important;
         }
 
-        /* FIX 7 — Sidebar button color */
+        /* ============================================================
+           START CLINICAL DIAGNOSIS — Dark card CTA
+           Uses type="secondary" so it bypasses the crimson primary
+           rules above. The .cta-start-diagnosis wrapper provides the
+           CSS hook for maximum specificity without !important wars.
+        ============================================================ */
+        .cta-start-diagnosis div[data-testid="stButton"] > button,
+        .cta-start-diagnosis div[data-testid="stButton"] > button[kind="secondary"] {
+            background-color: #18233B !important;
+            background-image: none !important;
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+            border: 2px solid #18D6C4 !important;
+            border-radius: 14px !important;
+            height: 68px !important;
+            min-height: 68px !important;
+            padding: 0 2rem !important;
+            font-weight: 700 !important;
+            font-size: 1.05rem !important;
+            letter-spacing: 0.01em !important;
+            box-shadow:
+                0 0 0 1px rgba(24, 214, 196, 0.20),
+                0 0 20px rgba(24, 214, 196, 0.25) !important;
+            transition: background-color 0.25s ease,
+                        box-shadow 0.25s ease,
+                        transform 0.25s ease !important;
+        }
+        /* Force all child text elements inside the CTA to white */
+        .cta-start-diagnosis div[data-testid="stButton"] > button p,
+        .cta-start-diagnosis div[data-testid="stButton"] > button span,
+        .cta-start-diagnosis div[data-testid="stButton"] > button div {
+            color: #FFFFFF !important;
+            -webkit-text-fill-color: #FFFFFF !important;
+        }
+        .cta-start-diagnosis div[data-testid="stButton"] > button:hover {
+            background-color: #1f2e4a !important;
+            box-shadow:
+                0 0 0 1px rgba(24, 214, 196, 0.35),
+                0 0 32px rgba(24, 214, 196, 0.45) !important;
+            transform: translateY(-1px) !important;
+        }
+        .cta-start-diagnosis div[data-testid="stButton"] > button:active {
+            transform: translateY(0px) !important;
+            box-shadow:
+                0 0 0 1px rgba(24, 214, 196, 0.20),
+                0 0 12px rgba(24, 214, 196, 0.20) !important;
+        }
+
+        /* ============================================================
+           SIDEBAR BUTTON OVERRIDES  (FIX 7 — ghost style)
+        ============================================================ */
         [data-testid="stSidebar"] div[data-testid="stButton"] > button {
             background: rgba(255,255,255,0.03) !important;
             background-image: none !important;
@@ -1297,50 +1372,17 @@ def main():
             box-shadow: none !important;
             font-weight: 500 !important;
             padding: 0.6rem 1rem !important;
+            height: auto !important;
+            min-height: unset !important;
         }
         [data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="primary"] {
             background: rgba(100,255,218,0.12) !important;
             background-image: none !important;
             color: #64ffda !important;
+            -webkit-text-fill-color: #64ffda !important;
             border: 1px solid rgba(100,255,218,0.4) !important;
             box-shadow: none !important;
-        }
-
-        /* Main content CTA — Begin New Diagnosis / Analyse Slide — 
-           maximum specificity to override any sidebar bleed */
-        section.main div[data-testid="stButton"] > button[kind="primary"],
-        div[data-testid="stAppViewContainer"] section.main 
-            div[data-testid="stButton"] > button[kind="primary"] {
-            background: linear-gradient(135deg, #e94560, #c23152) !important;
-            background-color: #e94560 !important;
-            background-image: linear-gradient(135deg, #e94560, #c23152) !important;
-            color: #FFFFFF !important;
-            -webkit-text-fill-color: #FFFFFF !important;
-            border: none !important;
-            border-radius: 12px !important;
-            padding: 0.85rem 2rem !important;
-            font-weight: 700 !important;
-            font-size: 1.05rem !important;
-            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.35) !important;
-            transition: all 0.25s ease !important;
-        }
-        
-        section.main div[data-testid="stButton"] > button[kind="primary"] p,
-        section.main div[data-testid="stButton"] > button[kind="primary"] span,
-        section.main div[data-testid="stButton"] > button[kind="primary"] div {
-            color: #FFFFFF !important;
-            -webkit-text-fill-color: #FFFFFF !important;
-        }
-        
-        section.main div[data-testid="stButton"] > button[kind="primary"]:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(233, 69, 96, 0.5) !important;
-            color: #FFFFFF !important;
-        }
-
-        section.main div[data-testid="stButton"] > button[kind="primary"]:active {
-            transform: translateY(0px) !important;
-            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.35) !important;
+            height: auto !important;
         }
 
 
