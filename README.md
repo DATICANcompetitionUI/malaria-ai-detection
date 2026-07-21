@@ -24,7 +24,7 @@ PlasmoID AI is an automated clinical decision-support system designed to assist 
 - [Clinical Workflow](#-clinical-workflow)
 - [Architecture](#-architecture)
 - [🎥 Demo](#-demo)
-- [Application Screenshots](#-application-screenshots)
+- [Application Walkthrough](#-application-walkthrough)
 - [Features](#-features)
 - [Technology Stack](#-technology-stack)
 - [Problem Statement](#-problem-statement)
@@ -146,24 +146,76 @@ The demo will include:
 
 ---
 
-## 📷 Application Screenshots
+## 🖼 Application Walkthrough
 
-### Splash Screen
-> Application startup and system initialization.
-
-### Clinical Dashboard
-> System overview, workflow, and model capabilities.
-
-### Diagnosis
-> Upload, slide quality assessment, and cell detection interface.
-
-### Human Verification
-> Cropped cell crops and accept/reject verification cards.
-
-### Clinical Report
-> Downloadable PDF laboratory report with patient details and WHO classification.
+PlasmoID AI is not merely a parasite detector — it is a **complete clinical decision-support workflow** that guides a laboratory technician from patient registration through slide quality gating, AI-powered detection, uncertainty-driven human verification, and finally to a WHO-classified, downloadable clinical report.
 
 ---
+
+### Step 1 — Splash Screen & System Initialisation
+
+> On launch, the system performs a self-check: the YOLOv8n model is loaded into memory, all quality-control modules are activated, WHO classification rules are applied, and PDF reporting is confirmed ready. All six status indicators must be green before analysis is permitted.
+
+![Splash Screen — System Initialisation](docs/screenshots/01_splash.png)
+
+---
+
+### Step 2 — Clinical Dashboard
+
+> The main dashboard orients the clinician within the full three-stage workflow (Upload → Detect → Report) and provides quick access to **New Diagnosis** and the **Clinical Dashboard** for session history. The real-time System Status sidebar confirms model and infrastructure readiness at a glance.
+
+![Clinical Dashboard — Workflow Overview](docs/screenshots/02_dashboard.png)
+
+---
+
+### Step 3 — Patient Intake & Image Upload
+
+> The clinician enters optional but recommended patient demographics (name, age, sex, facility). The system automatically generates a unique **Report Number** and **Study ID** for traceability. The technician then uploads a Giemsa-stained thin blood smear image or selects from three curated sample slides (Infected, Mixed, Healthy).
+
+![Patient Intake — Demographics & Image Upload](docs/screenshots/03_patient_intake.png)
+
+---
+
+### Step 4 — Slide Quality Check
+
+> Before any inference is run, classical computer vision algorithms evaluate the uploaded field for **focus sharpness** (Laplacian variance), **illumination uniformity**, and **exposure level**. A green confirmation banner is required to proceed — blurred or poorly lit slides are blocked with actionable guidance, protecting diagnostic reliability.
+
+![Slide Quality Check — Image Quality Validation](docs/screenshots/04_quality_check.png)
+
+---
+
+### Step 5 — YOLOv8 Parasite Detection
+
+> The CPU-optimised YOLOv8n model analyses the slide field in ~140ms, producing bounding boxes with confidence scores across five classes: *ring*, *trophozoite*, *schizont*, *gametocyte*, and healthy red blood cells. Results are displayed as a side-by-side comparison — the original slide alongside the fully annotated detection output — with summary statistics (total cells, parasites detected, parasitemia %, and WHO severity) shown at the top.
+
+![YOLOv8 Detection — Parasite Localisation & Classification](docs/screenshots/05_detection.png)
+
+---
+
+### Step 6 — Clinician Verification Panel
+
+> Detections with confidence scores in the **35–45% uncertainty band** are surfaced as zoomed crops for mandatory clinical accept/reject review. Each crop card displays the predicted class, confidence score, and a classification tier label. The clinician's decisions feed directly back into the parasitemia calculation and WHO severity determination — the AI proposes; the clinician disposes.
+
+![Human Verification — Uncertainty Review & Accept/Reject](docs/screenshots/06_verification.png)
+
+---
+
+### Step 7 — Analytics & Severity Estimation
+
+> A rich analytics panel presents **detection confidence distribution**, **parasite stage breakdown** (ring vs. trophozoite), and a **WHO parasitemia gauge** calibrated to the three severity thresholds: Low (<1%), Moderate (1–5%), and Severe (>5%). These visualisations give the clinician an at-a-glance understanding of infection burden and confidence in the model's outputs.
+
+![Analytics — Parasitemia Gauge & Stage Distribution](docs/screenshots/07_analytics.png)
+
+---
+
+### Step 8 — Clinical Report Generation
+
+> The completed diagnostic session is compiled into a **print-ready Laboratory AI Screening Report** (PDF) containing: the patient's demographic data, report and study identifiers, estimated parasitemia percentage, WHO severity classification, stage-specific clinical interpretations, evidence-based treatment recommendations, a full detection summary table, the annotated slide image, and a mandatory AI disclaimer. CSV and annotated image exports are also available.
+
+![Clinical PDF Report — WHO-Classified Laboratory Report](docs/screenshots/08_report.png)
+
+---
+
 
 ## 🛠 Features
 
